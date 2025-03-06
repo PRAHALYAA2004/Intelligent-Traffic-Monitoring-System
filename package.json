@@ -1,0 +1,22 @@
+{
+  "name": "intelligent-traffic-monitoring-system",
+  "version": "1.0.0",
+  "description": "19CSE314 Software Engineering Project",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.1"
+  }
+}
