@@ -1,0 +1,18 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    text-align: center;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+  form {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+  }
