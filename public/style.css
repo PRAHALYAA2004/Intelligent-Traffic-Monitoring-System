@@ -1,0 +1,381 @@
+/* General Styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('bg1.jpg'); /* Set background image */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+/* Black overlay for the entire page */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  z-index: -1;
+}
+
+/* Container for Login and Signup */
+#login-container, #signup-container {
+  background-color: rgba(0, 0, 0, 0.7); /* Black background with transparency */
+  border: 2px solid #fefefe; /* Highlight border color */
+  border-radius: 10px; /* Soften the corners */
+  padding: 20px; /* Space inside the box */
+  width: 250px; /* Reduced width */
+  margin: 0 auto; /* Center the box */
+  text-align: center; /* Center text within the box */
+  position: relative;
+  z-index: 1; /* Ensure the container is above the overlay */
+  color: #ffffff; /* White text color */
+}
+
+/* Headings */
+#login-container h1, #signup-container h1 {
+  color: #eaeaea; /* Light gray for headings */
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Input Fields and Buttons */
+#login-container input, #signup-container input,
+#login-container button, #signup-container button {
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+  backdrop-filter: blur(5px); /* Blur effect */
+}
+
+#login-container button, #signup-container button {
+  background-color: #28a745; /* Green button */
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+#login-container button:hover, #signup-container button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+/* Links for Signup/Login */
+#login-container p, #signup-container p {
+  color: #ffffff; /* White text for links */
+  margin-top: 10px;
+}
+
+#login-container a, #signup-container a {
+  color: #28a745; /* Green color for links */
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#login-container a:hover, #signup-container a:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Hidden Class */
+.hidden {
+  display: none;
+}
+
+.container {
+  background-color: rgba(0, 0, 0, 0.7); /* Black background with transparency */
+  border: 2px solid #fefefe; /* Highlight border color (green in this case) */
+  border-radius: 10px; /* Optional: to soften the corners */
+  padding: 20px; /* Space inside the box */
+  width: 250px; /* Reduced width */
+  margin: 0 auto; /* Center the box */
+  text-align: center; /* Center text within the box */
+  position: relative;
+  z-index: 1; /* Ensure the container is above the overlay */
+  color: #ffffff;
+}
+
+/* Other styles remain unchanged... */
+
+h1 {
+  color: #eaeaea;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #ffffff;
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+h3 {
+  color: #ffffff;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+select, input, button {
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+  backdrop-filter: blur(5px); /* Blur effect */
+}
+
+select:focus, input:focus, button:focus {
+  outline: none;
+  border-color: #28a745;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+/* Placeholder-like dropdown */
+select:invalid {
+  color: #999;
+}
+
+button {
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Confirmation Options */
+#confirmation-options {
+  margin-top: 20px;
+}
+
+#confirmation-options button {
+  margin: 10px;
+  width: 45%;
+}
+
+/* Booking Confirmation Popup */
+#booking-confirmation-popup {
+  position: fixed;
+  top: 0; /* Align to the very top */
+  left: 0; /* Align to the left edge */
+  width: 100%; /* Span the full width */
+  background-color: #28a745;
+  color: rgb(255, 255, 255);
+  padding: 15px;
+  text-align: center; /* Center the text */
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  opacity: 0; /* Start invisible */
+  transition: opacity 0.5s ease-in-out;
+  margin-bottom: 85%; /* Add space from the top */
+}
+
+#booking-confirmation-popup.visible {
+  opacity: 1; /* Make it visible */
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Animation Styles */
+#animation-container {
+  position: fixed;
+  top: 50%;
+  left: 52%;
+  transform: translate(-50%, -50%);
+  z-index: 1001; /* Ensure the animation is above everything */
+ 
+}
+
+#bus-animation {
+  width: 85%;
+  height: 30%;
+  animation: moveBus 3s linear infinite;
+}
+
+/* Info Box Styles */
+#info-box {
+  margin-top: 20px;
+}
+
+#error-box {
+  color: #dc3545;
+  background-color: #f8d7da;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+  margin-top: 10px;
+}
+
+/* Route Info Styles */
+#route-info {
+  margin-top: 20px;
+  text-align: left;
+  color: rgb(255, 255, 255); /* Change text color to black */
+}
+
+#route-map-container {
+  position: relative;
+  width: 100%;
+  height: 400px; /* Adjust based on your map image size */
+}
+
+#route-map {
+  width: 100%;
+  height: 100%;
+  background-color: #181717; /* Fallback color */
+}
+
+#route-points {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.route-point {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.route-point-name {
+  position: absolute;
+  font-size: 12px;
+  color: rgb(0, 0, 0);
+  background-color: rgb(0, 0, 0);
+  padding: 2px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  transform: translaate(-50%, 10px);
+}
+
+#route-suggestion {
+  font-family: monospace;
+  white-space: pre-wrap;
+  background-color: #000000;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Navbar Styles */
+/* Navbar Styles */
+/* Navbar Styles */
+#navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 1); /* Solid black background */
+  padding: 10px 20px;
+  z-index: 1000; /* Ensure it's above other content */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Optional: Add a shadow for depth */
+}
+
+#navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: flex-end; /* Align items to the right */
+  margin-right: 20px; /* Add some right margin */
+}
+
+#navbar ul li {
+  margin-left: 20px; /* Space between items */
+}
+
+#navbar ul li a {
+  color: #ffffff; /* White text */
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+#navbar ul li a:hover {
+  color: #28a745; /* Green color on hover */
+}
+
+#navbar ul li a img {
+  margin-right: 5px; /* Space between icon and text */
+}
+
+#profile-text {
+  font-size: 16px;
+  font-weight: 500;
+}
+/* Profile Box Styles */
+/* Profile Box Styles */
+/* Profile Box Styles */
+#profile-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black background */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  z-index: 1001; /* Ensure it's above everything */
+  color: #ffffff; /* White text */
+  width: 300px; /* Fixed width */
+  text-align: center;
+}
+
+#profile-box.hidden {
+  display: none;
+}
+
+#profile-box .profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#profile-box button {
+  background-color: #28a745; /* Green button */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+#profile-box button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
