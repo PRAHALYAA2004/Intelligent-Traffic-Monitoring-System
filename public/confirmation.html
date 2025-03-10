@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmed</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Booking Confirmed!</h1>
+    <p>Your transport has been successfully booked.</p>
+    <button onclick="goBack()">Go Back</button>
+
+    <div id="booking-confirmation-popup" class="visible">
+      <p>✅ Booking Confirmed!</p>
+    </div>
+  </div>
+
+  <script>
+    function goBack() {
+      window.location.href = "index.html";
+    }
+
+    setTimeout(() => {
+      document.getElementById('booking-confirmation-popup').classList.remove('visible');
+    }, 3000);
+  </script>
+</body>
+</html>
