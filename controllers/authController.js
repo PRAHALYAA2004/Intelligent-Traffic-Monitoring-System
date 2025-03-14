@@ -5,7 +5,9 @@ exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ username, password });
     if (user) {
-      res.json({ success: true, role: user.role });
+      // Redirect URL based on user role
+      const dashboardUrl = user.role === 'admin' ? '/admin-dashboard.html' : '/user-dashboard.html';
+      res.json({ success: true, role: user.role, redirectTo: dashboardUrl });
     } else {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
     }

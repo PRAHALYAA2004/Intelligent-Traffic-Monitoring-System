@@ -27,26 +27,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', require('./routes/authRoutes'));
 
 // Connect to ITMS MongoDB
-mongoose.connect('mongodb://localhost:27017/traffic_management', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect('mongodb://localhost:27017/traffic_management')
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Create a separate connection to the admin database
-const adminConnection = mongoose.createConnection('mongodb://localhost:27017/admin', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const adminConnection = mongoose.createConnection('mongodb://localhost:27017/admin');
 adminConnection.on('connected', () => console.log('Connected to admin MongoDB'));
 adminConnection.on('error', (err) => console.error('admin MongoDB connection error:', err));
 
 // Create a separate connection to the booking database
-const bookingConnection = mongoose.createConnection('mongodb://localhost:27017/bookingDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const bookingConnection = mongoose.createConnection('mongodb://localhost:27017/bookingDB');
 bookingConnection.on('connected', () => console.log('Connected to booking MongoDB'));
 bookingConnection.on('error', (err) => console.error('booking MongoDB connection error:', err));
 
@@ -63,7 +54,8 @@ const Violation = adminConnection.model('Violation', ViolationSchema);
 const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   emailid: { type: String, required: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' } // Role added
 });
 const User = bookingConnection.model('User', userSchema);
 
@@ -109,7 +101,7 @@ app.post('/signup', async (req, res) => {
 });
 
 // POST route to login
-app.post('/login', async (req, res) => {
+app.post('/auth/login', async (req, res) => {
   const { username, password } = req.body;
 
   // Validate the request body
@@ -130,7 +122,13 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    res.json({ success: true, message: 'Login successful!', email: user.emailid });
+    // Send back success message along with the user role
+    res.json({ 
+      success: true, 
+      message: 'Login successful!', 
+      email: user.emailid,
+      role: user.role // Include the user role in the response
+    });
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ message: 'Error during login', error: error.message });

@@ -1,13 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Intelligent Traffic Management System</title>
-  <link rel="stylesheet" href="css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Traffic Management System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 </head>
 <body>
-  <h1>Welcome to Intelligent Traffic Management System</h1>
-  <button onclick="window.location.href='login.html'">Login</button>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>TrafficIQ</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#benefits">Benefits</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="login.html" class="login-btn">Login</a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Smart Solutions for Modern Traffic Management</h2>
+                <p>Optimize traffic flow, reduce congestion, and enhance road safety with our AI-powered traffic management system.</p>
+                <div class="cta-buttons">
+                    <a href="login.html" class="btn primary-btn">Login</a>
+                    <a href="#demo" class="btn secondary-btn">Request Demo</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="images\traffic_home_img.jpeg" alt="Traffic management visualization">
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="https://via.placeholder.com/80?text=AI" alt="AI Icon">
+                    </div>
+                    <h3>AI-Powered Analytics</h3>
+                    <p>Advanced algorithms that analyze traffic patterns and predict congestion points.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="https://via.placeholder.com/80?text=RT" alt="Real-time Icon">
+                    </div>
+                    <h3>Real-time Monitoring</h3>
+                    <p>Monitor traffic conditions in real-time with high-definition cameras and sensors.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="https://via.placeholder.com/80?text=SC" alt="Smart Control Icon">
+                    </div>
+                    <h3>Smart Signal Control</h3>
+                    <p>Dynamically adjust traffic signals based on current traffic conditions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="https://via.placeholder.com/80?text=DA" alt="Data Analysis Icon">
+                    </div>
+                    <h3>Data-driven Insights</h3>
+                    <p>Comprehensive reports and analytics to improve urban planning and traffic management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <div class="benefits-content">
+                <h2 class="section-title">Why Choose Our System</h2>
+                <ul class="benefits-list">
+                    <li>Reduce traffic congestion by up to 30%</li>
+                    <li>Lower carbon emissions and improve air quality</li>
+                    <li>Decrease average commute times</li>
+                    <li>Enhance road safety and reduce accidents</li>
+                    <li>Optimize public transportation routes</li>
+                    <li>Seamless integration with existing infrastructure</li>
+                </ul>
+                <a href="login.html" class="btn primary-btn">Get Started</a>
+            </div>
+            <div class="benefits-image">
+                <img src="https://images.unsplash.com/photo-1600320254374-ce2d293c324e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="City traffic management">
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title">About Our Technology</h2>
+            <div class="about-grid">
+                <div class="about-card">
+                    <h3>Advanced Sensors</h3>
+                    <p>Our system uses state-of-the-art sensors to collect accurate traffic data in all weather conditions.</p>
+                </div>
+                <div class="about-card">
+                    <h3>Machine Learning</h3>
+                    <p>Self-improving algorithms that continuously enhance traffic prediction accuracy.</p>
+                </div>
+                <div class="about-card">
+                    <h3>Cloud Infrastructure</h3>
+                    <p>Secure, scalable cloud platform that ensures 99.9% uptime and real-time data processing.</p>
+                </div>
+                <div class="about-card">
+                    <h3>Open API</h3>
+                    <p>Easily integrate with third-party applications and existing city infrastructure.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Contact Us</h2>
+            <div class="contact-wrapper">
+                <div class="contact-form">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="organization">Organization</label>
+                            <input type="text" id="organization" name="organization">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn primary-btn">Send Message</button>
+                    </form>
+                </div>
+                <div class="contact-info">
+                    <h3>Get in Touch</h3>
+                    <p>Interested in implementing our Intelligent Traffic Management System in your city? Contact our team for more information or to schedule a demonstration.</p>
+                    <div class="info-item">
+                        <strong>Email:</strong> info@trafficiq.com
+                    </div>
+                    <div class="info-item">
+                        <strong>Phone:</strong> +1 (555) 123-4567
+                    </div>
+                    <div class="info-item">
+                        <strong>Address:</strong> 123 Smart City Blvd, Innovation District, CA 94103
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>TrafficIQ</h2>
+                    <p>Intelligent Traffic Management Solutions</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h3>Product</h3>
+                        <ul>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#benefits">Benefits</a></li>
+                            <li><a href="#pricing">Pricing</a></li>
+                            <li><a href="#roadmap">Roadmap</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Company</h3>
+                        <ul>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#team">Team</a></li>
+                            <li><a href="#careers">Careers</a></li>
+                            <li><a href="#news">News</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Resources</h3>
+                        <ul>
+                            <li><a href="#blog">Blog</a></li>
+                            <li><a href="#docs">Documentation</a></li>
+                            <li><a href="#support">Support</a></li>
+                            <li><a href="#partners">Partners</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TrafficIQ. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#privacy">Privacy Policy</a>
+                    <a href="#terms">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple JavaScript for mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('nav').classList.toggle('active');
+            this.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
