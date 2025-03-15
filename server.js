@@ -6,10 +6,10 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const User = require('../Intelligent-Traffic-Monitoring-System/models/userModel');
 
 // Import models
-const Alert = require('./models/Alert');
-const Route = require('./models/Route');
+
 
 const app = express();
 const server = http.createServer(app);
@@ -27,9 +27,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', require('./routes/authRoutes'));
 
 // Connect to ITMS MongoDB
-mongoose.connect('mongodb://localhost:27017/traffic_management')
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+// Connect to MongoDB using Mongoose
+const connectDB = async () => {
+  try {
+      const dbName = process.env.DB_NAME || 'traffic_management';
+      const connectionString = process.env.MONGO_URI || `mongodb://localhost:27017/${dbName}`;
+      await mongoose.connect(connectionString);
+      console.log(`Connected to ${dbName}`);
+  } catch (err) {
+      console.error('MongoDB connection error:', err);
+  }
+};
+
+// Call the connection function
+connectDB();
 
 // Create a separate connection to the admin database
 const adminConnection = mongoose.createConnection('mongodb://localhost:27017/admin');
@@ -49,15 +60,6 @@ const ViolationSchema = new mongoose.Schema({
   penalty_amount: Number
 });
 const Violation = adminConnection.model('Violation', ViolationSchema);
-
-// Define the user schema using the booking connection
-const userSchema = new mongoose.Schema({
-  username: { type: String, unique: true, required: true },
-  emailid: { type: String, required: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' } // Role added
-});
-const User = bookingConnection.model('User', userSchema);
 
 // Define the booking schema using the booking connection
 const bookingSchema = new mongoose.Schema({
@@ -81,57 +83,32 @@ app.post('/signup', async (req, res) => {
   // Check if the password meets the criteria
   const passwordRegex = /^(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   if (!passwordRegex.test(password)) {
-    return res.status(400).json({ message: 'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.' });
+    return res.status(400).json({
+      message: 'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.',
+    });
   }
 
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Create a new user instance
-  const newUser = new User({ username, emailid: email, password: hashedPassword });
-
   try {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user instance
+    const newUser = new User({
+      username,
+      emailid: email, // Map 'email' from req.body to 'emailid' in the model
+      password: hashedPassword,
+    });
+
     // Save the user to the database
     await newUser.save();
     res.json({ success: true, message: 'Signup successful!' });
   } catch (error) {
+    if (error.code === 11000) {
+      // Handle duplicate key error (e.g., emailid already exists)
+      return res.status(400).json({ message: 'Email already exists' });
+    }
     console.error('Error saving user:', error);
     res.status(500).json({ message: 'Error saving user', error: error.message });
-  }
-});
-
-// POST route to login
-app.post('/auth/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  // Validate the request body
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required' });
-  }
-
-  try {
-    // Find the user by username
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid username or password' });
-    }
-
-    // Compare the password with the hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid username or password' });
-    }
-
-    // Send back success message along with the user role
-    res.json({ 
-      success: true, 
-      message: 'Login successful!', 
-      email: user.emailid,
-      role: user.role // Include the user role in the response
-    });
-  } catch (error) {
-    console.error('Error during login:', error);
-    res.status(500).json({ message: 'Error during login', error: error.message });
   }
 });
 
@@ -179,35 +156,29 @@ app.get('/violations', async (req, res) => {
     }
 });
 
-// Socket.IO connection for real-time alerts
-io.on('connection', (socket) => {
-  console.log('A user connected');
+// Login endpoint
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+console.log("Login request received:", username, password);
+  try {
+      // Query the 'users' collection using the Mongoose model
+      const user = await User.findOne({ username: username });
+      console.log('User found:', user);
 
-  // Emit real-time alerts and routes every 10 seconds
-  setInterval(async () => {
-    try {
-      const alerts = await Alert.find().sort({ time: -1 }).limit(5);
-      const routes = await Route.find().limit(5);
-      console.log("Sending route suggestions:", routes);
-      console.log("Sending alerts:", alerts);
-
-      socket.emit('route-suggestions', routes);
-
-      alerts.forEach(alert => {
-        socket.emit('new-alert', {
-          title: alert.title,
-          type: alert.type,
-          time: alert.time.toLocaleTimeString()
-        });
-      });
-    } catch (err) {
-      console.error('Error fetching alerts or routes:', err);
-    }
-  }, 10000);
-
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
-  });
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (passwordMatch) {
+          // Determine redirect URL based on role
+          const redirectUrl = user.role === 'admin' 
+              ? '/admin-dashboard/admin-dashboard.html' 
+              : '/user-dashboard/user-dashboard.html';
+          res.json({ success: true, redirectUrl });
+      } else {
+          res.json({ success: false });
+      }
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 // Start server

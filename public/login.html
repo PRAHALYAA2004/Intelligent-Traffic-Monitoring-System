@@ -12,7 +12,7 @@
     <header>
         <div class="container">
             <div class="logo">
-                <h1>TrafficIQ</h1>
+                <h1><a href="./index.html">TrafficIQ</a></h1>
             </div>
             <nav>
                 <ul>
@@ -58,7 +58,7 @@
                         <button type="submit" class="btn primary-btn login-submit">Login</button>
                     </form>
                     <div class="login-footer">
-                        <p>Don't have an account? <a href="#">Contact us</a> to get started</p>
+                        <p>Don't have an account? <a href="./signup.html">Sign up</a> to get started</p>
                     </div>
                 </div>
                 <div class="login-image">
@@ -92,16 +92,50 @@
         });
 
         // Form submission handler
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            // Simple role-based redirect (in a real app, this would be server-side)
-            if (username.toLowerCase().includes('admin')) {
-                window.location.href = 'admin-dashboard.html';
-            } else {
-                window.location.href = 'user-dashboard.html';
-            }
-        });
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+        
+                // Get username and password from the form and trim whitespace
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+        
+                // Disable the submit button to prevent multiple submissions
+                const submitButton = document.querySelector('.login-submit');
+                submitButton.disabled = true;
+        
+                // Send login request to the server
+                fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                })
+                .then(response => {
+                    // Check if the response status is OK (200-299)
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Re-enable the submit button after the response
+                    submitButton.disabled = false;
+                    console.log(data);
+                    if (data.success) {
+                        // Redirect to the URL provided by the server
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        alert('Invalid username or password');
+                    }
+                })
+                .catch(error => {
+                    // Re-enable the submit button on error
+                    submitButton.disabled = false;
+                    console.error('Error:', error);
+                    alert('An error occurred during login');
+                });
+            });
     </script>
 </body>
 </html>

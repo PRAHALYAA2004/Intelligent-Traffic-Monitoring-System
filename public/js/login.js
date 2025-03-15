@@ -3,6 +3,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
 
+  console.log('Logging in...');
+
   try {
       const response = await fetch('/auth/login', {
           method: 'POST',

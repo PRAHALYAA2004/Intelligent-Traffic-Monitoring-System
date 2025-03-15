@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - TrafficIQ</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/signup.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><a href="./index.html">TrafficIQ</a></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html#features">Features</a></li>
+                    <li><a href="index.html#benefits">Benefits</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                    <li><a href="login.html" class="login-btn">Login</a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <section class="login-section">
+        <div class="container">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <h2>Create Account</h2>
+                        <p>Join TrafficIQ to get started</p>
+                    </div>
+                    <form id="signupForm" class="login-form">
+                        <div class="form-group">
+                            <label for="fullname">Full Name</label>
+                            <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Create a password" required>
+                            <small class="password-hint">Password must be at least 8 characters long</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                        </div>
+                        <div class="form-options">
+                            <div class="terms-agreement">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <label for="terms">I agree to the <a href="./privacypolicy.html">Terms of Service</a> and <a href="./privacypolicy.html">Privacy Policy</a></label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn primary-btn login-submit">Create Account</button>
+                    </form>
+                    <div class="login-footer">
+                        <p>Already have an account? <a href="./login.html">Log in</a> instead</p>
+                    </div>
+                </div>
+                <div class="login-image">
+                    <img src="images/traffic_home_img.jpeg" alt="Traffic management visualization">
+                    <div class="login-overlay">
+                        <h3>Intelligent Traffic Management</h3>
+                        <p>Optimize traffic flow, reduce congestion, and enhance road safety with our AI-powered system.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 TrafficIQ. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="./privacypolicy.html">Privacy Policy</a>
+                    <a href="./privacypolicy.html">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple JavaScript for mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function () {
+          document.querySelector('nav').classList.toggle('active');
+          this.classList.toggle('active');
+        });
+      
+        // Form validation and submission handler
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
+          e.preventDefault();
+      
+          // Get form values and trim whitespace
+          const fullname = document.getElementById('fullname').value.trim();
+          const email = document.getElementById('email').value.trim();
+          const password = document.getElementById('password').value.trim();
+          const confirmPassword = document.getElementById('confirmPassword').value.trim();
+          const termsAgreed = document.getElementById('terms').checked;
+      
+          // Enhanced validation to match server-side
+          const passwordRegex = /^(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!passwordRegex.test(password)) {
+            alert(
+              'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.'
+            );
+            return;
+          }
+      
+          if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+          }
+      
+          if (!termsAgreed) {
+            alert('You must agree to the Terms of Service and Privacy Policy');
+            return;
+          }
+      
+          // Prepare data, mapping fullname to username
+          const data = {
+            username: fullname,
+            email,
+            password,
+          };
+      
+          // Send data to the server
+          fetch('/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                alert('Account created successfully! You can now log in.');
+                window.location.href = 'login.html';
+              } else {
+                alert(data.message);
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+              alert('An error occurred. Please try again.');
+            });
+        });
+      </script>
+</body>
+</html>

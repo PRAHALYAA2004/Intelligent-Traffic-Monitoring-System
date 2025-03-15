@@ -1,0 +1,84 @@
+/* Team Section Styles */
+.team-section {
+    padding: 120px 0 40px; /* Increased top padding to offset the fixed header */
+    background-color: #f9f9f9;
+}
+
+.team-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.team-section h2 {
+    font-size: 2rem;
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.team-section p {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 40px;
+}
+
+.team-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.team-members .member {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.team-members .member p {
+    font-size: 1rem;
+    color: #333;
+    margin: 0;
+}
+
+.team-members .member:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.team-members .member strong {
+    font-weight: 600;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .team-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .team-section p {
+        font-size: 1rem;
+    }
+
+    .team-members {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Sticky Footer Fix */
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}

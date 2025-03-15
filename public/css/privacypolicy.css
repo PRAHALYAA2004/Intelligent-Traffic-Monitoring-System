@@ -1,0 +1,170 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Root Variables */
+  :root {
+    --primary-color: #007bff;  /* Accent color */
+    --secondary-color: #6c757d;
+    --background-color: #f8f9fa;
+    --text-color: #343a40;
+    --font-family: 'Inter', sans-serif;
+  }
+  
+  /* Global Styles */
+  body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    background-color: #fff;
+    color: var(--text-color);
+  }
+  
+  /* Container */
+  .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Header Styles */
+  header {
+    background-color: #fff;
+    border-bottom: 1px solid #eaeaea;
+    padding: 10px 0;
+    /* If the header is fixed, you might have additional properties such as:
+       position: fixed;
+       top: 0;
+       left: 0;
+       width: 100%;
+       z-index: 1000;
+    */
+  }
+  
+  header .logo h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+  
+  header .logo a {
+    text-decoration: none;
+  }
+  
+  header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+  
+  header nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  header nav ul li a:hover {
+    color: var(--primary-color);
+  }
+  
+  /* Menu Toggle for Mobile */
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  
+  .menu-toggle span {
+    height: 3px;
+    width: 25px;
+    background-color: var(--text-color);
+    margin-bottom: 4px;
+    border-radius: 2px;
+  }
+  
+  /* Main Content Styles */
+  main {
+    padding: 40px 0;
+    padding-top: 120px; /* Added padding-top to push content below the header/banner */
+  }
+  
+  main section {
+    margin-bottom: 40px;
+  }
+  
+  main section h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+  }
+  
+  main section h2 {
+    font-size: 1.4rem;
+    margin: 20px 0 10px;
+    color: var(--text-color);
+  }
+  
+  main section p,
+  main section li {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  main section ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  
+  /* Footer Styles */
+  footer {
+    background-color: var(--background-color);
+    border-top: 1px solid #eaeaea;
+    padding: 20px 0;
+    text-align: center;
+  }
+  
+  .footer-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .footer-legal a {
+    text-decoration: none;
+    color: var(--text-color);
+    margin: 0 10px;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+  }
+  
+  .footer-legal a:hover {
+    color: var(--primary-color);
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    header nav ul {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .menu-toggle {
+      display: flex;
+    }
+    
+    /* Example adjustment from the sample */
+    .form-options {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .terms-agreement {
+      margin-bottom: 15px;
+    }
+  }
+  
