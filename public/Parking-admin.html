@@ -6,114 +6,124 @@
     <title>Admin Parking Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver"></script>
     <style>
-        body { background-color: #f4f4f4; }
-        .card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        body { background-color: #f8f9fa; }
+        .card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 15px; margin-bottom: 10px; }
+        .status-ok { color: green; font-weight: bold; }
+        .status-warning { color: orange; font-weight: bold; }
         .status-overdue { color: red; font-weight: bold; }
+        .table-hover tbody tr:hover { background-color: #f1f1f1; }
+        .dark-mode { background-color: #121212; color: white; }
+        .blinking { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
-    
-    <!-- Navigation -->
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Admin Parking Dashboard</a>
+            <button class="btn btn-light" onclick="toggleDarkMode()">Toggle Dark Mode</button>
         </div>
     </nav>
-
+    
     <div class="container mt-4">
-        <h2>Identify Vehicles Exceeding Booking Duration</h2>
-        <table class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Vehicle ID</th>
-                    <th>User</th>
-                    <th>Duration Exceeded</th>
-                    <th>Fine</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="vehicleTable">
-                <tr>
-                    <td>ABC-123</td>
-                    <td>John Doe</td>
-                    <td class="status-overdue">2h 30m</td>
-                    <td>$50</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm">Send Alert</button>
-                        <button class="btn btn-danger btn-sm">Issue Fine</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <h2>Vehicles Exceeding Booking Duration</h2>
+        <input type="text" id="searchBar" class="form-control mb-3" placeholder="Search by License Plate, User ID, or Booking ID" onkeyup="filterCards()">
+        <div id="vehicleCards" class="row"></div>
     </div>
-
+    
     <div class="container mt-5">
-        <h2>Parking Demand Analysis</h2>
-        <canvas id="demandChart" width="400" height="200"></canvas>
-    </div>
-
-    <div class="container mt-5">
-        <h2>High-Demand Parking Locations</h2>
-        <canvas id="locationChart" width="400" height="200"></canvas>
-    </div>
-
-    <div class="container mt-5">
-        <h2>Generate Parking Report</h2>
-        <button class="btn btn-primary" onclick="generateReport()">Download Report</button>
+        <h2>Analytics Dashboard</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="timelineGraph"></canvas>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Chart.js Parking Demand Graph
-        new Chart(document.getElementById('demandChart').getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-                datasets: [{
-                    label: 'Peak Parking Demand',
-                    data: [50, 80, 60, 90, 100],
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    fill: true
-                }]
-            }
-        });
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
 
-        // High-Demand Locations Chart
-        new Chart(document.getElementById('locationChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Zone A', 'Zone B', 'Zone C', 'Zone D'],
-                datasets: [{
-                    label: 'Vehicle Count',
-                    data: [120, 150, 90, 110],
-                    backgroundColor: ['red', 'blue', 'green', 'purple']
-                }]
-            }
-        });
-
-        // Automated Fine Allocation System
-        document.querySelectorAll('tbody tr').forEach(row => {
-            let timeExceeded = row.cells[2].innerText;
-            let fineCell = row.cells[3];
+        document.addEventListener("DOMContentLoaded", () => {
+            const vehicleCards = document.getElementById("vehicleCards");
+            let sampleData = "";
+            let parkingNames = ["Basement Parking", "Open Parking", "Multi-level Parking", "Underground Parking", "Street Parking", "Covered Parking"];
+            let addresses = ["MG Road, Bengaluru", "Brigade Road, Bengaluru", "Koramangala, Bengaluru", "Indiranagar, Bengaluru", "Jayanagar, Bengaluru", "Whitefield, Bengaluru"];
             
-            if (timeExceeded.includes('2h')) {
-                fineCell.innerText = '$50';
+            for (let i = 0; i < parkingNames.length; i++) {
+                let overstayedTime = Math.floor(Math.random() * 5);
+                let statusClass = overstayedTime === 0 ? "status-ok" : overstayedTime < 3 ? "status-warning" : "status-overdue blinking";
+                sampleData += `<div class="col-md-4">
+                    <div class="card">
+                        <h5 class="card-title">Driver ${i + 1} <span class="${statusClass}">(${overstayedTime === 0 ? "🟢 OK" : overstayedTime < 3 ? "🟠 Warning" : "🔴 Overdue"})</span></h5>
+                        <p class="card-text">License Plate: ABC-123${i + 1}</p>
+                        <p class="card-text">Parking: ${parkingNames[i]}</p>
+                        <p class="card-text">Address: ${addresses[i]}</p>
+                        <p class="card-text">Overstayed Time: ${overstayedTime} hours</p>
+                        <button class="btn btn-success" onclick="markResolved()">Mark as Resolved</button>
+                        ${overstayedTime > 0 ? '<button class="btn btn-danger" onclick="issueFine()">Issue Fine</button> <button class="btn btn-warning" onclick="notifyDriver()">Notify Driver</button>' : ''}
+                    </div>
+                </div>`;
             }
+            vehicleCards.innerHTML = sampleData;
+
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            const ctxTimeline = document.getElementById('timelineGraph').getContext('2d');
+            
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: parkingNames,
+                    datasets: [{
+                        label: 'Parking Occupancy',
+                        data: [5, 8, 4, 6, 7, 5],
+                        backgroundColor: ['blue', 'green', 'red', 'orange', 'purple', 'yellow']
+                    }]
+                },
+                options: { animation: { duration: 2000 } }
+            });
+            
+            new Chart(ctxTimeline, {
+                type: 'line',
+                data: {
+                    labels: ["1 hr", "2 hrs", "3 hrs", "4 hrs", "5 hrs"],
+                    datasets: [{
+                        label: 'Overstayed Time',
+                        data: [2, 3, 5, 7, 8],
+                        backgroundColor: 'red',
+                        borderColor: 'red',
+                        fill: false
+                    }]
+                },
+                options: { responsive: true }
+            });
         });
 
-        // Generate Parking Report
-        function generateReport() {
-            let csv = 'Vehicle ID,User,Duration Exceeded,Fine\n';
-            document.querySelectorAll('#vehicleTable tr').forEach(row => {
-                let cols = row.querySelectorAll('td');
-                csv += `${cols[0].innerText},${cols[1].innerText},${cols[2].innerText},${cols[3].innerText}\n`;
-            });
-            let blob = new Blob([csv], { type: 'text/csv' });
-            saveAs(blob, 'parking_report.csv');
+        function notifyDriver() {
+            alert("Driver has been notified about overstaying.");
+        }
+
+        function issueFine() {
+            alert("Fine has been issued for overstaying.");
+        }
+
+        function markResolved() {
+            alert("Issue marked as resolved.");
+        }
+
+        function filterCards() {
+            let input = document.getElementById("searchBar").value.toUpperCase();
+            let cards = document.getElementsByClassName("card");
+            for (let card of cards) {
+                let text = card.innerText.toUpperCase();
+                card.style.display = text.includes(input) ? "block" : "none";
+            }
         }
     </script>
-
 </body>
 </html>
