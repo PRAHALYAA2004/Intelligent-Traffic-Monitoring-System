@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Route Adjustment - TrafficIQ</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/dynamic-route-adjustment.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Load Leaflet CSS directly from CDN -->
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Load Leaflet JS before your script -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="user-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="speed-violation.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
+                            <span>Speed Monitoring</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="traffic-signal.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Traffic Signals</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="parking-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path></svg>
+                            <span>Parking Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="public-transport.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M8 6v6"></path><path d="m8 16 4 4"></path><path d="m16 10 4-4"></path><circle cx="16" cy="16" r="6"></circle></svg>
+                            <span>Public Transport</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="predictive-traffic.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 12h10"></path><path d="M9 4v16"></path><path d="m3 9 3 3-3 3"></path><path d="M14 8h8"></path><path d="M18 4v16"></path><path d="m22 12-3 3-3-3"></path></svg>
+                            <span>Predictive Planning</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="dynamic-route-adjustment.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path><path d="M12 3v6"></path></svg>
+                            <span>Route Adjustment</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar">JD</div>
+                    <div class="user-info">
+                        <h4>John Doe</h4>
+                        <p>Traffic Operator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+                </div>
+                <h2>Dynamic Route Adjustment</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" id="route-search" placeholder="Search routes...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Route Overview Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Active Routes</h3>
+                            <p class="stat-value" id="active-routes-count">0</p>
+                            <p class="stat-change positive">+2 from yesterday</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Avg. Delivery Time</h3>
+                            <p class="stat-value" id="avg-delivery-time">0 min</p>
+                            <p class="stat-change negative">-5 min from yesterday</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Route Adjustments</h3>
+                            <p class="stat-value" id="route-adjustments">0</p>
+                            <p class="stat-change positive">+8% efficiency</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Traffic Incidents</h3>
+                            <p class="stat-value" id="traffic-incidents">0</p>
+                            <p class="stat-change negative">-3 from yesterday</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Route Content -->
+                <div class="dashboard-row">
+                    <!-- Route Map -->
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Route Visualization</h3>
+                            <div class="card-actions">
+                                <select id="map-view-selector">
+                                    <option value="all">All Routes</option>
+                                    <option value="active">Active Routes</option>
+                                    <option value="delayed">Delayed Routes</option>
+                                </select>
+                                <button class="refresh-btn" id="refresh-map">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div id="route-map" class="route-map"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-row">
+                    <!-- Current Route Details -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Current Route Details</h3>
+                            <div class="card-actions">
+                                <select id="delivery-selector">
+                                    <option value="delivery1">Delivery #1</option>
+                                    <option value="delivery2">Delivery #2</option>
+                                    <option value="delivery3">Delivery #3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div id="route-info" class="route-info">
+                                <div class="route-info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Delivery ID:</span>
+                                        <span class="info-value" id="delivery-id">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Status:</span>
+                                        <span class="info-value status-badge" id="status">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Start Point:</span>
+                                        <span class="info-value" id="start-point">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">End Point:</span>
+                                        <span class="info-value" id="end-point">-</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="info-label">Current Path:</span>
+                                        <span class="info-value" id="current-path">-</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="info-label">Estimated Arrival:</span>
+                                        <span class="info-value" id="estimated-arrival">-</span>
+                                    </div>
+                                </div>
+                                <div id="notification" class="notification-banner hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                                    <span id="notification-text"></span>
+                                </div>
+                            </div>
+                            <div class="route-timeline">
+                                <h4>Route Timeline</h4>
+                                <div class="timeline" id="route-timeline">
+                                    <!-- Timeline items will be added dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Route Options -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Route Options</h3>
+                            <div class="card-actions">
+                                <select id="route-sort">
+                                    <option value="time">Sort by Time</option>
+                                    <option value="traffic">Sort by Traffic</option>
+                                    <option value="distance">Sort by Distance</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div id="route-options" class="route-options">
+                                <!-- Route options will be added dynamically -->
+                            </div>
+                            <div class="route-actions">
+                                <button id="update-route" class="primary-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                    Update Route
+                                </button>
+                                <button id="optimize-route" class="secondary-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                                    Auto-Optimize
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Route Details -->
+    <div id="route-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Route Details</h3>
+                <button class="close-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-route-info"></div>
+                <div id="modal-route-map" class="modal-map"></div>
+                <div id="modal-waypoints" class="modal-waypoints"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-select-route" class="primary-btn">Select This Route</button>
+                <button class="secondary-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/dynamic-route-adjustment.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="real-time-alerts(tc).js"></script> 
+</body>
+</html>
