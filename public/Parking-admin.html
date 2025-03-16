@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Parking Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver"></script>
+    <style>
+        body { background-color: #f4f4f4; }
+        .card { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .status-overdue { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Parking Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Identify Vehicles Exceeding Booking Duration</h2>
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Vehicle ID</th>
+                    <th>User</th>
+                    <th>Duration Exceeded</th>
+                    <th>Fine</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="vehicleTable">
+                <tr>
+                    <td>ABC-123</td>
+                    <td>John Doe</td>
+                    <td class="status-overdue">2h 30m</td>
+                    <td>$50</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm">Send Alert</button>
+                        <button class="btn btn-danger btn-sm">Issue Fine</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Parking Demand Analysis</h2>
+        <canvas id="demandChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="container mt-5">
+        <h2>High-Demand Parking Locations</h2>
+        <canvas id="locationChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Generate Parking Report</h2>
+        <button class="btn btn-primary" onclick="generateReport()">Download Report</button>
+    </div>
+
+    <script>
+        // Chart.js Parking Demand Graph
+        new Chart(document.getElementById('demandChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                datasets: [{
+                    label: 'Peak Parking Demand',
+                    data: [50, 80, 60, 90, 100],
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    fill: true
+                }]
+            }
+        });
+
+        // High-Demand Locations Chart
+        new Chart(document.getElementById('locationChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Zone A', 'Zone B', 'Zone C', 'Zone D'],
+                datasets: [{
+                    label: 'Vehicle Count',
+                    data: [120, 150, 90, 110],
+                    backgroundColor: ['red', 'blue', 'green', 'purple']
+                }]
+            }
+        });
+
+        // Automated Fine Allocation System
+        document.querySelectorAll('tbody tr').forEach(row => {
+            let timeExceeded = row.cells[2].innerText;
+            let fineCell = row.cells[3];
+            
+            if (timeExceeded.includes('2h')) {
+                fineCell.innerText = '$50';
+            }
+        });
+
+        // Generate Parking Report
+        function generateReport() {
+            let csv = 'Vehicle ID,User,Duration Exceeded,Fine\n';
+            document.querySelectorAll('#vehicleTable tr').forEach(row => {
+                let cols = row.querySelectorAll('td');
+                csv += `${cols[0].innerText},${cols[1].innerText},${cols[2].innerText},${cols[3].innerText}\n`;
+            });
+            let blob = new Blob([csv], { type: 'text/csv' });
+            saveAs(blob, 'parking_report.csv');
+        }
+    </script>
+
+</body>
+</html>

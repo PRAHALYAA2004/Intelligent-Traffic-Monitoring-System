@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Park Easy - Find Parking</title>
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { background-color: #333; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; }
+        nav a { color: white; text-decoration: none; margin: 0 15px; }
+        .hero { text-align: center; padding: 40px; background: url('hp.jpg') no-repeat center center/cover; color: white; font-size: x-large;}
+        .search-container { margin: 20px auto; max-width: 500px; display: flex; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; background-color: #8f4ef0; color: white; border: none; cursor: pointer; }
+        .map-container { text-align: center; padding: 20px; }
+        #map { width: 80%; height: 350px; margin: auto; border: 2px solid #333; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Park Easy</div>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="#">About</a>
+            <a href="#">Contact Us</a>
+            <a href="dashboard.html">Profile</a>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <h1>Find a Parking Spot</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Enter your location">
+            <button onclick="searchParking()">Find Parking</button>
+        </div>
+    </section>
+    
+    <section class="map-container">
+        <h2>Available Parking Spots</h2>
+        <div id="map"></div>
+    </section>
+
+    <script>
+        var map = L.map('map').setView([12.9716, 77.5946], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var spots = [
+            { lat: 12.975, lng: 77.599, available: true, type: "Basement Parking", price: 50, lots: 10, address: "MG Road, Bengaluru" },
+            { lat: 12.969, lng: 77.593, available: false, type: "Open Parking", price: 30, lots: 0, address: "Brigade Road, Bengaluru" },
+            { lat: 12.960, lng: 77.580, available: true, type: "Multi-level Parking", price: 100, lots: 20, address: "Koramangala, Bengaluru" },
+            { lat: 12.955, lng: 77.600, available: true, type: "Underground Parking", price: 80, lots: 15, address: "Indiranagar, Bengaluru" },
+            { lat: 12.950, lng: 77.590, available: false, type: "Street Parking", price: 20, lots: 0, address: "Jayanagar, Bengaluru" },
+            { lat: 12.965, lng: 77.605, available: true, type: "Covered Parking", price: 60, lots: 5, address: "Whitefield, Bengaluru" }
+        ];
+
+        spots.forEach(spot => {
+            var marker = L.marker([spot.lat, spot.lng], {
+                icon: L.icon({
+                    iconUrl: spot.available ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' : 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(map);
+
+            var popupContent = `
+                <strong> ${spot.type}</strong><br>
+                ${spot.available ? "✅ <b>Available</b>" : "❌ <b>Occupied</b>"}<br>
+                Price: ₹${spot.price}/hr<br>
+                Lots Available: ${spot.lots}<br>
+                ${spot.address}<br>
+                ${spot.available ? `<button onclick="bookSpot('${spot.address}', ${spot.price}, '${spot.type}', ${spot.lots})">Book Now</button>` : ""}
+            `;
+
+            marker.bindPopup(popupContent);
+        });
+
+        function bookSpot(address, price, type, lots) {
+            var url = `booking.html?address=${encodeURIComponent(address)}&price=${price}&type=${encodeURIComponent(type)}&lots=${lots}`;
+            window.location.href = url;
+        }
+
+        function searchParking() {
+            var query = document.getElementById("searchInput").value.toLowerCase().trim();
+            var foundSpot = spots.find(spot => spot.address.toLowerCase().includes(query));
+
+            if (foundSpot) {
+                map.setView([foundSpot.lat, foundSpot.lng], 16);
+            } else {
+                alert("No parking spots found for this location.");
+            }
+        }
+    </script>
+</body>
+</html>
