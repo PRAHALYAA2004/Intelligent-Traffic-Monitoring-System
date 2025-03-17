@@ -3,9 +3,7 @@
  * Enhanced script with modern features, better visualization, and improved UX
  */
 
-// Import Leaflet library
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+
 
 // DOM Elements
 const elements = {

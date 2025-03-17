@@ -138,26 +138,31 @@
           };
       
           // Send data to the server
-          fetch('/signup', {
+          fetch('/api/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
           })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.success) {
-                alert('Account created successfully! You can now log in.');
-                window.location.href = 'login.html';
-              } else {
-                alert(data.message);
-              }
-            })
-            .catch((error) => {
-              console.error('Error:', error);
-              alert('An error occurred. Please try again.');
-            });
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Server responded with status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              alert('Account created successfully! You can now log in.');
+              window.location.href = 'login.html';
+            } else {
+              alert(data.message || 'Signup failed. Please try again.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+          });
         });
       </script>
 </body>

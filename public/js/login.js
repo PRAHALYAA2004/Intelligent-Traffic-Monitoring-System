@@ -6,23 +6,17 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   console.log('Logging in...');
 
   try {
-      const response = await fetch('/auth/login', {
+      const response = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
-      
       if (data.success) {
-          // Based on the user's role, redirect to the appropriate dashboard
-          if (data.role === 'admin') {
-              window.location.href = 'admin-dashboard.html'; // Redirect to admin dashboard
-          } else {
-              window.location.href = 'user-dashboard.html'; // Redirect to user dashboard
-          }
+          window.location.href = data.redirectUrl; // Use the server's redirectUrl
       } else {
-          alert(data.message); // Show error message from the server
+          alert(data.message);
       }
   } catch (err) {
       console.error('Login error:', err);
