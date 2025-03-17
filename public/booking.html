@@ -19,14 +19,12 @@
         }
         .container {
             max-width: 500px;
-            max-height: 2200px;
             width: 100%;
             padding: 15px;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             text-align: center;
-            
         }
         h2 { color: #333; }
         .parking-details {
@@ -90,6 +88,7 @@
         </div>
         <button id="confirmBtn" onclick="confirmBooking()">Confirm & Pay</button>
     </div>
+
     <script>
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
@@ -100,7 +99,7 @@
                 lots: params.get("lots") || "0"
             };
         }
-        
+
         function populateDetails() {
             const details = getQueryParams();
             document.getElementById("address").textContent = details.address;
@@ -108,70 +107,45 @@
             document.getElementById("price").textContent = details.price;
             document.getElementById("lots").textContent = details.lots;
         }
-        
+
         window.onload = populateDetails;
+
         async function confirmBooking() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        alert("Session expired. Please log in again.");
-        window.location.href = "login.html";
-        return;
-    }
+            const date = document.getElementById("date").value;
+            const startTime = document.getElementById("startTime").value;
+            const endTime = document.getElementById("endTime").value;
+            const paymentMethod = document.getElementById("paymentMethod").value;
 
-    const date = document.getElementById("date").value;
-    const startTime = document.getElementById("startTime").value;
-    const endTime = document.getElementById("endTime").value;
-    const paymentMethod = document.getElementById("paymentMethod").value;
-    
-    const today = new Date().toISOString().split("T")[0];
-    if (!date || date < today) {
-        alert("Invalid date selection!");
-        return;
-    }
-    if (!startTime || !endTime || startTime >= endTime) {
-        alert("Invalid time range!");
-        return;
-    }
+            const today = new Date().toISOString().split("T")[0];
+            if (!date || date < today) {
+                alert("Invalid date selection!");
+                return;
+            }
+            if (!startTime || !endTime || startTime >= endTime) {
+                alert("Invalid time range!");
+                return;
+            }
 
-    const pricePerHour = parseFloat(document.getElementById("price").textContent);
-    const start = new Date(`2000-01-01T${startTime}:00`);
-    const end = new Date(`2000-01-01T${endTime}:00`);
-    const hours = (end - start) / (1000 * 60 * 60);
-    const totalPrice = pricePerHour * hours;
+            const pricePerHour = parseFloat(document.getElementById("price").textContent);
+            const start = new Date(`2000-01-01T${startTime}:00`);
+            const end = new Date(`2000-01-01T${endTime}:00`);
+            const hours = (end - start) / (1000 * 60 * 60);
+            const totalPrice = pricePerHour * hours;
 
-    if (confirm(`Confirm booking for ₹${totalPrice.toFixed(2)}?`)) {
-        document.getElementById("confirmBtn").classList.add("disabled");
-        document.getElementById("confirmBtn").textContent = "Processing...";
-
-        try {
-            const response = await fetch("http://localhost:5000/bookings", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
+            if (confirm(`Confirm booking for ₹${totalPrice.toFixed(2)}?`)) {
+                const booking = {
                     address: document.getElementById("address").textContent,
                     type: document.getElementById("type").textContent,
                     price: totalPrice.toFixed(2),
-                    date, startTime, endTime, paymentMethod, status: "active"
-                })
-            });
-            const data = await response.json();
-            if (data.success) {
+                    date, startTime, endTime, paymentMethod
+                };
+
+                localStorage.setItem("latestBooking", JSON.stringify(booking));
+
                 alert("Booking Confirmed!");
                 window.location.href = "dashboard1.html";
-            } else {
-                throw new Error(data.message);
             }
-        } catch (error) {
-            alert("Error processing booking.");
-            document.getElementById("confirmBtn").classList.remove("disabled");
-            document.getElementById("confirmBtn").textContent = "Confirm & Pay";
         }
-    }
-}
-
     </script>
 </body>
 </html>
