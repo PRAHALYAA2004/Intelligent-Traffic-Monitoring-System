@@ -8,9 +8,125 @@
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/real-time-alerts(tc).css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Add Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Add this CSS to the head section of your HTML file -->
+<style>
+    /* Modal improvements */
+    .modal-content {
+        max-width: 600px;
+        width: 90%;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    /* Fix checkbox alignment */
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        font-weight: normal;
+        margin-bottom: 0;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        margin-right: 8px;
+    }
+    
+    /* Improve button styling */
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 15px 20px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .primary-btn, .secondary-btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .primary-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+    }
+    
+    .primary-btn:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    .secondary-btn {
+        background-color: white;
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+    
+    .secondary-btn:hover {
+        background-color: var(--background-alt);
+    }
+    
+    /* Toggle switch improvements */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-switch label {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .toggle-switch label:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    .toggle-switch input:checked + label {
+        background-color: var(--primary-color);
+    }
+    
+    .toggle-switch input:checked + label:before {
+        transform: translateX(26px);
+    }
+</style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -54,7 +170,7 @@
                     </li>
                     <li>
                         <a href="penalty-management.html">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m  class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
                             <span>Penalty System</span>
                         </a>
                     </li>
@@ -229,7 +345,7 @@
                                     </div>
                                     <h4>Configure Alerts</h4>
                                     <p>Set up alert thresholds and notification rules</p>
-                                    <button class="secondary-btn">Configure</button>
+                                    <button class="secondary-btn" id="configure-alerts-btn">Configure</button>
                                 </div>
                                 <div class="action-card">
                                     <div class="action-icon">
@@ -237,7 +353,7 @@
                                     </div>
                                     <h4>Alert Prioritization</h4>
                                     <p>Set priority levels for different alert types</p>
-                                    <button class="secondary-btn">Prioritize</button>
+                                    <button class="secondary-btn" id="prioritize-alerts-btn">Prioritize</button>
                                 </div>
                                 <div class="action-card">
                                     <div class="action-icon">
@@ -245,7 +361,7 @@
                                     </div>
                                     <h4>Auto-Resolution</h4>
                                     <p>Configure automatic resolution for certain alerts</p>
-                                    <button class="secondary-btn">Configure</button>
+                                    <button class="secondary-btn" id="auto-resolution-btn">Configure</button>
                                 </div>
                                 <div class="action-card">
                                     <div class="action-icon">
@@ -253,7 +369,7 @@
                                     </div>
                                     <h4>Alert Reports</h4>
                                     <p>Generate reports on alert frequency and resolution</p>
-                                    <button class="secondary-btn">Generate</button>
+                                    <button class="secondary-btn" id="generate-reports-btn">Generate</button>
                                 </div>
                             </div>
                         </div>
@@ -335,13 +451,429 @@
         </div>
     </div>
 
+    <!-- Add map container for Leaflet -->
+    <div id="map" style="display: none; height: 300px;"></div>
+
+    <!-- Configure Alerts Modal -->
+    <div id="configure-alerts-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configure Alerts</h3>
+                <button class="close-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="configure-alerts-form">
+                    <div class="form-group">
+                        <label for="alert-threshold">Alert Threshold</label>
+                        <select id="alert-threshold" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notification-method">Notification Method</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" checked> Email</label>
+                            <label><input type="checkbox" checked> SMS</label>
+                            <label><input type="checkbox" checked> In-App</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="alert-frequency">Alert Frequency</label>
+                        <select id="alert-frequency" class="form-control">
+                            <option value="immediate">Immediate</option>
+                            <option value="5min">Every 5 minutes</option>
+                            <option value="15min">Every 15 minutes</option>
+                            <option value="hourly">Hourly</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="save-config-btn" class="primary-btn">Save Configuration</button>
+                <button class="secondary-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prioritize Alerts Modal -->
+    <div id="prioritize-alerts-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Alert Prioritization</h3>
+                <button class="close-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="prioritize-alerts-form">
+                    <div class="form-group">
+                        <label>Traffic Congestion</label>
+                        <select class="form-control">
+                            <option value="low">Low Priority</option>
+                            <option value="medium">Medium Priority</option>
+                            <option value="high" selected>High Priority</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Signal Malfunction</label>
+                        <select class="form-control">
+                            <option value="low">Low Priority</option>
+                            <option value="medium">Medium Priority</option>
+                            <option value="high" selected>High Priority</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Road Closure</label>
+                        <select class="form-control">
+                            <option value="low">Low Priority</option>
+                            <option value="medium">Medium Priority</option>
+                            <option value="high" selected>High Priority</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Weather Alert</label>
+                        <select class="form-control">
+                            <option value="low">Low Priority</option>
+                            <option value="medium" selected>Medium Priority</option>
+                            <option value="high">High Priority</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="save-priority-btn" class="primary-btn">Save Priorities</button>
+                <button class="secondary-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto Resolution Modal -->
+    <div id="auto-resolution-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Auto-Resolution Configuration</h3>
+                <button class="close-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="auto-resolution-form">
+                    <div class="form-group">
+                        <label>Enable Auto-Resolution</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="auto-resolution-toggle" checked>
+                            <label for="auto-resolution-toggle"></label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Auto-Resolve After</label>
+                        <select class="form-control">
+                            <option value="30min">30 Minutes</option>
+                            <option value="1hour" selected>1 Hour</option>
+                            <option value="2hours">2 Hours</option>
+                            <option value="4hours">4 Hours</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Alert Types to Auto-Resolve</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" checked> Low Severity</label>
+                            <label><input type="checkbox"> Medium Severity</label>
+                            <label><input type="checkbox"> High Severity</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="save-auto-resolution-btn" class="primary-btn">Save Configuration</button>
+                <button class="secondary-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Reports Modal -->
+    <div id="generate-reports-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Generate Alert Reports</h3>
+                <button class="close-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="generate-reports-form">
+                    <div class="form-group">
+                        <label>Report Type</label>
+                        <select class="form-control" id="report-type">
+                            <option value="daily">Daily Summary</option>
+                            <option value="weekly" selected>Weekly Summary</option>
+                            <option value="monthly">Monthly Summary</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="form-group date-range" style="display: none;">
+                        <label>Date Range</label>
+                        <div class="date-inputs">
+                            <input type="date" class="form-control" id="start-date">
+                            <span>to</span>
+                            <input type="date" class="form-control" id="end-date">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Include in Report</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" checked> Alert Frequency</label>
+                            <label><input type="checkbox" checked> Resolution Time</label>
+                            <label><input type="checkbox" checked> Route Analysis</label>
+                            <label><input type="checkbox" checked> Severity Distribution</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Report Format</label>
+                        <select class="form-control">
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="generate-report-btn" class="primary-btn">Generate Report</button>
+                <button class="secondary-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/real-time-alerts(tc).js"></script>
     <script>
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('active');
         });
+
+        // Alert Management Button Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configure Alerts Button
+            const configureAlertsBtn = document.getElementById('configure-alerts-btn');
+            const configureAlertsModal = document.getElementById('configure-alerts-modal');
+            
+            configureAlertsBtn.addEventListener('click', function() {
+                configureAlertsModal.classList.add('active');
+            });
+            
+            // Prioritize Alerts Button
+            const prioritizeAlertsBtn = document.getElementById('prioritize-alerts-btn');
+            const prioritizeAlertsModal = document.getElementById('prioritize-alerts-modal');
+            
+            prioritizeAlertsBtn.addEventListener('click', function() {
+                prioritizeAlertsModal.classList.add('active');
+            });
+            
+            // Auto Resolution Button
+            const autoResolutionBtn = document.getElementById('auto-resolution-btn');
+            const autoResolutionModal = document.getElementById('auto-resolution-modal');
+            
+            autoResolutionBtn.addEventListener('click', function() {
+                autoResolutionModal.classList.add('active');
+            });
+            
+            // Generate Reports Button
+            const generateReportsBtn = document.getElementById('generate-reports-btn');
+            const generateReportsModal = document.getElementById('generate-reports-modal');
+            
+            generateReportsBtn.addEventListener('click', function() {
+                generateReportsModal.classList.add('active');
+            });
+            
+            // Close all modals when clicking close buttons
+            const closeModalBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        modal.classList.remove('active');
+                    });
+                });
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Toggle custom date range based on report type
+            const reportType = document.getElementById('report-type');
+            if (reportType) {
+                reportType.addEventListener('change', function() {
+                    const dateRange = document.querySelector('.date-range');
+                    if (this.value === 'custom') {
+                        dateRange.style.display = 'block';
+                    } else {
+                        dateRange.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Save buttons functionality
+            const saveButtons = document.querySelectorAll('#save-config-btn, #save-priority-btn, #save-auto-resolution-btn, #generate-report-btn');
+            saveButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // In a real application, this would save the configuration
+                    // For demo purposes, we'll just show a notification
+                    showNotification('Settings saved successfully', 'success');
+                    
+                    // Close the modal
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Helper function to show notifications
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <span>${message}</span>
+                    <button class="close-notification">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            `;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Add active class after a small delay (for animation)
+            setTimeout(() => {
+                notification.classList.add('active');
+            }, 10);
+            
+            // Set up close button
+            const closeBtn = notification.querySelector('.close-notification');
+            closeBtn.addEventListener('click', () => {
+                notification.classList.remove('active');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    notification.classList.remove('active');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }
+            }, 5000);
+        }
     </script>
-    
+
+    <style>
+        /* Additional styles for modals */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .date-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .date-inputs span {
+            color: var(--text-light);
+        }
+        
+        /* Toggle switch styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-switch label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-switch label:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        .toggle-switch input:checked + label {
+            background-color: var(--primary-color);
+        }
+        
+        .toggle-switch input:checked + label:before {
+            transform: translateX(26px);
+        }
+    </style>
 </body>
 </html>

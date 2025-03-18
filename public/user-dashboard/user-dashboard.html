@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -152,16 +154,16 @@
                         <div class="card-header">
                             <h3>Traffic Flow Analysis</h3>
                             <div class="card-actions">
-                                <select>
-                                    <option>Today</option>
-                                    <option>This Week</option>
-                                    <option>This Month</option>
+                                <select id="trafficTimeRange">
+                                    <option value="day">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
                                 </select>
                             </div>
                         </div>
                         <div class="card-content">
-                            <div class="chart-placeholder">
-                                <img src="https://via.placeholder.com/800x300?text=Traffic+Flow+Chart" alt="Traffic Flow Chart">
+                            <div class="chart-container">
+                                <canvas id="trafficFlowChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -269,7 +271,119 @@
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('active');
         });
+
+        // Initialize Traffic Flow Chart
+        document.addEventListener('DOMContentLoaded', function() {
+            // Traffic Flow Chart
+            const trafficFlowCtx = document.getElementById('trafficFlowChart').getContext('2d');
+            
+            // Sample data for traffic flow
+            const trafficFlowData = {
+                labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                datasets: [
+                    {
+                        label: 'Main St & 5th Ave',
+                        data: [200, 150, 350, 850, 750, 950, 800, 400],
+                        borderColor: '#0066cc',
+                        backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Broadway & 42nd St',
+                        data: [300, 250, 450, 950, 850, 1050, 900, 500],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Park Ave & 23rd St',
+                        data: [150, 100, 300, 700, 600, 800, 650, 300],
+                        borderColor: '#fd7e14',
+                        backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            };
+
+            // Chart configuration
+            const trafficFlowConfig = {
+                type: 'line',
+                data: trafficFlowData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Vehicles per hour'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Create the chart
+            const trafficFlowChart = new Chart(trafficFlowCtx, trafficFlowConfig);
+
+            // Handle time range changes
+            document.getElementById('trafficTimeRange').addEventListener('change', function() {
+                const timeRange = this.value;
+                let newLabels = [];
+                let newMainStData = [];
+                let newBroadwayData = [];
+                let newParkAveData = [];
+
+                // Update data based on selected time range
+                if (timeRange === 'day') {
+                    newLabels = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
+                    newMainStData = [200, 150, 350, 850, 750, 950, 800, 400];
+                    newBroadwayData = [300, 250, 450, 950, 850, 1050, 900, 500];
+                    newParkAveData = [150, 100, 300, 700, 600, 800, 650, 300];
+                } else if (timeRange === 'week') {
+                    newLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    newMainStData = [600, 700, 750, 800, 950, 500, 400];
+                    newBroadwayData = [700, 800, 850, 900, 1050, 600, 500];
+                    newParkAveData = [500, 600, 650, 700, 800, 400, 300];
+                } else if (timeRange === 'month') {
+                    newLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                    newMainStData = [650, 750, 700, 600];
+                    newBroadwayData = [750, 850, 800, 700];
+                    newParkAveData = [550, 650, 600, 500];
+                }
+
+                // Update chart data
+                trafficFlowChart.data.labels = newLabels;
+                trafficFlowChart.data.datasets[0].data = newMainStData;
+                trafficFlowChart.data.datasets[1].data = newBroadwayData;
+                trafficFlowChart.data.datasets[2].data = newParkAveData;
+                
+                // Update the chart
+                trafficFlowChart.update();
+            });
+        });
     </script>
-    
 </body>
 </html>

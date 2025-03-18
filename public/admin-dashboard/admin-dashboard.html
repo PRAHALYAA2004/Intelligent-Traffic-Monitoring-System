@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -153,16 +155,16 @@
                         <div class="card-header">
                             <h3>System Performance</h3>
                             <div class="card-actions">
-                                <select>
-                                    <option>Today</option>
-                                    <option>This Week</option>
-                                    <option>This Month</option>
+                                <select id="performanceTimeRange">
+                                    <option value="day">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
                                 </select>
                             </div>
                         </div>
                         <div class="card-content">
-                            <div class="chart-placeholder">
-                                <img src="https://via.placeholder.com/800x300?text=System+Performance+Chart" alt="System Performance Chart">
+                            <div class="chart-container">
+                                <canvas id="systemPerformanceChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -267,8 +269,120 @@
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('active');
         });
+
+        // Initialize System Performance Chart
+        document.addEventListener('DOMContentLoaded', function() {
+            // System Performance Chart
+            const systemPerformanceCtx = document.getElementById('systemPerformanceChart').getContext('2d');
+            
+            // Sample data for system performance
+            const systemPerformanceData = {
+                labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                datasets: [
+                    {
+                        label: 'CPU Usage',
+                        data: [25, 30, 35, 60, 80, 70, 55, 40],
+                        borderColor: '#0066cc',
+                        backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Memory Usage',
+                        data: [40, 45, 50, 65, 75, 60, 55, 50],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Network Traffic',
+                        data: [10, 15, 30, 70, 85, 80, 60, 35],
+                        borderColor: '#fd7e14',
+                        backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            };
+
+            // Chart configuration
+            const systemPerformanceConfig = {
+                type: 'line',
+                data: systemPerformanceData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Usage (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Create the chart
+            const systemPerformanceChart = new Chart(systemPerformanceCtx, systemPerformanceConfig);
+
+            // Handle time range changes
+            document.getElementById('performanceTimeRange').addEventListener('change', function() {
+                const timeRange = this.value;
+                let newLabels = [];
+                let newCpuData = [];
+                let newMemoryData = [];
+                let newNetworkData = [];
+
+                // Update data based on selected time range
+                if (timeRange === 'day') {
+                    newLabels = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
+                    newCpuData = [25, 30, 35, 60, 80, 70, 55, 40];
+                    newMemoryData = [40, 45, 50, 65, 75, 60, 55, 50];
+                    newNetworkData = [10, 15, 30, 70, 85, 80, 60, 35];
+                } else if (timeRange === 'week') {
+                    newLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    newCpuData = [45, 55, 65, 60, 70, 40, 35];
+                    newMemoryData = [50, 55, 60, 65, 70, 55, 50];
+                    newNetworkData = [40, 60, 75, 65, 80, 50, 30];
+                } else if (timeRange === 'month') {
+                    newLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                    newCpuData = [50, 60, 55, 45];
+                    newMemoryData = [55, 65, 60, 50];
+                    newNetworkData = [60, 70, 65, 55];
+                }
+
+                // Update chart data
+                systemPerformanceChart.data.labels = newLabels;
+                systemPerformanceChart.data.datasets[0].data = newCpuData;
+                systemPerformanceChart.data.datasets[1].data = newMemoryData;
+                systemPerformanceChart.data.datasets[2].data = newNetworkData;
+                
+                // Update the chart
+                systemPerformanceChart.update();
+            });
+        });
     </script>
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </body>
 </html>

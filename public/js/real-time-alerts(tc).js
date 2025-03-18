@@ -3,12 +3,6 @@
  * Enhanced script with improved UI and functionality
  */
 
-// Import jQuery and Leaflet (if not already included in your HTML)
-// For example, using a CDN:
-// <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-// <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-// <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
 // Mock data for demonstration
 const mockData = [
     {
@@ -160,71 +154,52 @@ const elements = {
     closeModalBtns: document.querySelectorAll('.close-modal, .close-modal-btn')
 };
 
+// Declare $ and L as global variables
+var $ = jQuery;
+var L = window.L;
+
 // Initialize when document is ready
 $(document).ready(function() {
-    // Initialize Select2 dropdowns
-    $('.select2-dropdown').select2({
-        width: '100%',
-        placeholder: function() {
-            return $(this).data('placeholder');
-        }
-    });
+    // Initialize Select2 dropdowns if they exist
+    if ($.fn.select2) {
+        $('.select2-dropdown').select2({
+            width: '100%',
+            placeholder: function() {
+                return $(this).data('placeholder');
+            }
+        });
+    }
 
-    // Initialize the map
-    initMap();
+    // Initialize the map if Leaflet is available
+    if (typeof L !== 'undefined') {
+        initMap();
+    }
 
     // Mobile menu toggle
     $('.menu-toggle').on('click', function() {
         $('.sidebar').toggleClass('active');
     });
 
-    // Search button click handler
-    $('#searchBtn').on('click', function() {
-        const origin = $('#originSearch').val();
-        const destination = $('#destinationSearch').val();
-        
-        if (!origin || !destination) {
-            alert('Please select both origin and destination');
-            return;
-        }
-        
-        // In a real app, this would call an API to get route data
-        // For demo purposes, we'll simulate finding a route
-        findRoute(origin, destination);
-    });
-
-    // Refresh alerts button
-    $('#refreshAlerts').on('click', function() {
-        $(this).addClass('rotating');
-        // Simulate refreshing alerts
-        setTimeout(() => {
-            //loadMockAlerts();
-			refreshData('alerts');
-            $(this).removeClass('rotating');
-        }, 1000);
-    });
-
-    // Filter map incidents
-    $('#mapViewSelect').on('change', function() {
-        const filter = $(this).val();
-        filterMapIncidents(filter);
-    });
-
     // Load initial data
-    //loadMockAlerts();
-	initializeApp();
-    loadMockRoutes();
+    initializeApp();
 });
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    //initializeApp();
+    // This is a backup initialization in case jQuery ready event doesn't fire
+    if (!window.appInitialized) {
+        initializeApp();
+    }
 });
+
+
 
 /**
  * Initialize the application
  */
 function initializeApp() {
+    window.appInitialized = true;
+    
     // Load data
     loadData();
     
@@ -365,30 +340,43 @@ function updateAlertStats(data) {
 
 // Initialize the map using Leaflet.js with OpenStreetMap
 function initMap() {
-    // Check if L is defined
+    // Check if map element exists
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+        console.error('Map element not found');
+        return;
+    }
+
+    // Check if Leaflet is defined
     if (typeof L === 'undefined') {
         console.error('Leaflet is not loaded. Please include Leaflet in your HTML.');
         return;
     }
 
-    // Create a map centered on a default location
-    const map = L.map('map').setView([28.6139, 77.2090], 12); // Default to Delhi
+    try {
+        // Create a map centered on a default location
+        const map = L.map('map').setView([28.6139, 77.2090], 12); // Default to Delhi
 
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-    // Store the map in a global variable for later use
-    window.trafficMap = map;
+        // Store the map in a global variable for later use
+        window.trafficMap = map;
 
-    // Add mock incidents to the map
-    addMockIncidents(map);
+        // Add mock incidents to the map
+        addMockIncidents(map);
+    } catch (error) {
+        console.error('Error initializing map:', error);
+    }
 }
 
 // Add mock incidents to the map
 function addMockIncidents(map) {
+    if (!map) return;
+    
     const incidents = [
         { lat: 28.6139, lng: 77.2090, title: 'Accident', type: 'accident', description: 'Multi-vehicle collision' },
         { lat: 28.6229, lng: 77.2080, title: 'Road Work', type: 'roadwork', description: 'Lane closure due to construction' },
@@ -397,56 +385,59 @@ function addMockIncidents(map) {
         { lat: 28.6239, lng: 77.1990, title: 'Road Closure', type: 'roadwork', description: 'Complete road closure' }
     ];
 
-    // Create a marker for each incident
-    incidents.forEach(incident => {
-        // Choose icon based on incident type
-        let iconUrl = '';
-        let iconColor = '';
-        
-        switch(incident.type) {
-            case 'accident':
-                iconColor = '#dc3545'; // Red
-                break;
-            case 'roadwork':
-                iconColor = '#fd7e14'; // Orange
-                break;
-            case 'congestion':
-                iconColor = '#ffc107'; // Yellow
-                break;
-            default:
-                iconColor = '#0dcaf0'; // Blue
-        }
-        
-        // Create a custom icon
-        const incidentIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="background-color: ${iconColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
-        
-        // Create marker with popup
-        const marker = L.marker([incident.lat, incident.lng], { icon: incidentIcon })
-            .addTo(map)
-            .bindPopup(`
-                <strong>${incident.title}</strong><br>
-                ${incident.description}
-            `);
+    try {
+        // Create a marker for each incident
+        incidents.forEach(incident => {
+            // Choose icon based on incident type
+            let iconColor = '';
             
-        // Store the incident type on the marker for filtering
-        marker.incidentType = incident.type;
-        
-        // Store all markers in a global array for filtering
-        if (!window.incidentMarkers) {
-            window.incidentMarkers = [];
-        }
-        window.incidentMarkers.push(marker);
-    });
+            switch(incident.type) {
+                case 'accident':
+                    iconColor = '#dc3545'; // Red
+                    break;
+                case 'roadwork':
+                    iconColor = '#fd7e14'; // Orange
+                    break;
+                case 'congestion':
+                    iconColor = '#ffc107'; // Yellow
+                    break;
+                default:
+                    iconColor = '#0dcaf0'; // Blue
+            }
+            
+            // Create a custom icon
+            const incidentIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: ${iconColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            
+            // Create marker with popup
+            const marker = L.marker([incident.lat, incident.lng], { icon: incidentIcon })
+                .addTo(map)
+                .bindPopup(`
+                    <strong>${incident.title}</strong><br>
+                    ${incident.description}
+                `);
+                
+            // Store the incident type on the marker for filtering
+            marker.incidentType = incident.type;
+            
+            // Store all markers in a global array for filtering
+            if (!window.incidentMarkers) {
+                window.incidentMarkers = [];
+            }
+            window.incidentMarkers.push(marker);
+        });
+    } catch (error) {
+        console.error('Error adding map incidents:', error);
+    }
 }
 
 // Filter map incidents based on type
 function filterMapIncidents(filter) {
-    if (!window.incidentMarkers) return;
+    if (!window.incidentMarkers || !window.trafficMap) return;
     
     window.incidentMarkers.forEach(marker => {
         if (filter === 'all' || marker.incidentType === filter) {
@@ -732,15 +723,21 @@ function resolveAlert(alertId) {
     // For demo purposes, we'll just remove it from the UI
     
     // Find and remove the alert from the alerts list
-    const alertItem = document.querySelector(`.alert-item .resolve-alert-btn[data-alert-id="${alertId}"]`).closest('.alert-item');
+    const alertItem = document.querySelector(`.alert-item .resolve-alert-btn[data-alert-id="${alertId}"]`);
     if (alertItem) {
-        alertItem.remove();
+        const item = alertItem.closest('.alert-item');
+        if (item) {
+            item.remove();
+        }
     }
     
     // Find and remove the alert from the modal
-    const modalAlertRow = document.querySelector(`#modal-alerts-list .resolve-alert-btn[data-alert-id="${alertId}"]`).closest('tr');
+    const modalAlertRow = document.querySelector(`#modal-alerts-list .resolve-alert-btn[data-alert-id="${alertId}"]`);
     if (modalAlertRow) {
-        modalAlertRow.remove();
+        const row = modalAlertRow.closest('tr');
+        if (row) {
+            row.remove();
+        }
     }
     
     // Update stats
@@ -761,15 +758,21 @@ function deleteAlert(alertId) {
     // For demo purposes, we'll just remove it from the UI
     
     // Find and remove the alert from the alerts list
-    const alertItem = document.querySelector(`.alert-item .delete-alert-btn[data-alert-id="${alertId}"]`).closest('.alert-item');
+    const alertItem = document.querySelector(`.alert-item .delete-alert-btn[data-alert-id="${alertId}"]`);
     if (alertItem) {
-        alertItem.remove();
+        const item = alertItem.closest('.alert-item');
+        if (item) {
+            item.remove();
+        }
     }
     
     // Find and remove the alert from the modal
-    const modalAlertRow = document.querySelector(`#modal-alerts-list .delete-alert-btn[data-alert-id="${alertId}"]`).closest('tr');
+    const modalAlertRow = document.querySelector(`#modal-alerts-list .delete-alert-btn[data-alert-id="${alertId}"]`);
     if (modalAlertRow) {
-        modalAlertRow.remove();
+        const row = modalAlertRow.closest('tr');
+        if (row) {
+            row.remove();
+        }
     }
     
     // Show notification
@@ -781,8 +784,6 @@ function deleteAlert(alertId) {
  */
 function resolveRouteAlerts(routeId) {
     // In a real application, this would call an API to resolve all alerts for the route
-    // For demo  {
-    // In a real application, this would call an API to resolve all alerts for the route
     // For demo purposes, we'll just remove them from the UI
     
     // Find all alerts for this route in the modal
@@ -792,15 +793,18 @@ function resolveRouteAlerts(routeId) {
     });
     
     // Update the route's alert count in the routes table
-    const routeRow = document.querySelector(`.view-alerts-btn[data-route-id="${routeId}"]`).closest('tr');
+    const routeRow = document.querySelector(`.view-alerts-btn[data-route-id="${routeId}"]`);
     if (routeRow) {
-        const alertCountCell = routeRow.querySelector('td:nth-child(3)');
-        alertCountCell.textContent = '0';
-        
-        // Update severity
-        routeRow.className = '';
-        const severityCell = routeRow.querySelector('td:nth-child(4)');
-        severityCell.innerHTML = '<span class="severity-badge resolved">Resolved</span>';
+        const row = routeRow.closest('tr');
+        if (row) {
+            const alertCountCell = row.querySelector('td:nth-child(3)');
+            alertCountCell.textContent = '0';
+            
+            // Update severity
+            row.className = '';
+            const severityCell = row.querySelector('td:nth-child(4)');
+            severityCell.innerHTML = '<span class="severity-badge resolved">Resolved</span>';
+        }
     }
     
     // Update stats
@@ -913,220 +917,195 @@ function showNotification(message, type) {
     }, 5000);
 }
 
-// Add notification styles
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-    .notification {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1100;
-        max-width: 350px;
-        transform: translateY(100px);
-        opacity: 0;
-        transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    
-    .notification.active {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    
-    .notification-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        background-color: white;
-        border-left: 4px solid var(--primary-color);
-    }
-    
-    .notification.success .notification-content {
-        border-left-color: var(--status-green);
-    }
-    
-    .notification.warning .notification-content {
-        border-left-color: var(--alert-warning);
-    }
-    
-    .notification.error .notification-content {
-        border-left-color: var(--alert-critical);
-    }
-    
-    .close-notification {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        margin-left: 10px;
-    }
-    
-    .close-notification svg {
-        width: 16px;
-        height: 16px;
-        color: var(--text-light);
-    }
-`;
+// Add these functions to your existing JavaScript file
 
-document.head.appendChild(notificationStyles);
-
-// Simulate finding a route
-function findRoute(origin, destination) {
-    // In a real app, this would call a routing API
-    console.log(`Finding route from ${origin} to ${destination}`);
+/**
+ * Configure Alerts functionality
+ */
+function saveAlertConfiguration() {
+    // Get form values
+    const threshold = document.getElementById('alert-threshold').value;
+    const emailNotification = document.getElementById('email-notification').checked;
+    const smsNotification = document.getElementById('sms-notification').checked;
+    const inAppNotification = document.getElementById('in-app-notification').checked;
+    const frequency = document.getElementById('alert-frequency').value;
     
-    // Clear existing routes
-    $('#suggestedRoutes').empty();
-    
-    // Add mock routes
-    const routes = [
-        {
-            name: `${origin} to ${destination} via Highway`,
-            description: 'Fastest route, moderate traffic',
-            distance: '24.5 km',
-            time: '35 min'
+    // In a real application, this would save to a database
+    // For demo purposes, we'll just log the values and show a notification
+    console.log('Alert Configuration:', {
+        threshold,
+        notifications: {
+            email: emailNotification,
+            sms: smsNotification,
+            inApp: inAppNotification
         },
-        {
-            name: `${origin} to ${destination} via City Center`,
-            description: 'Alternative route with less traffic',
-            distance: '28.2 km',
-            time: '42 min'
-        },
-        {
-            name: `${origin} to ${destination} via Ring Road`,
-            description: 'Longer but less congested',
-            distance: '32.7 km',
-            time: '45 min'
-        }
-    ];
-    
-    // Add routes to the list
-    routes.forEach(route => {
-        $('#suggestedRoutes').append(`
-            <li class="route-item">
-                <h4>${route.name}</h4>
-                <p>${route.description}</p>
-                <div class="route-meta">
-                    <span class="route-distance">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                            <path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path>
-                            <path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path>
-                            <path d="m8 22 4-10 4 10"></path>
-                        </svg>
-                        ${route.distance}
-                    </span>
-                    <span class="route-time">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        ${route.time}
-                    </span>
-                </div>
-            </li>
-        `);
+        frequency
     });
     
-    // In a real app, you would also draw the route on the map
-    // For demo purposes, we'll just show a notification
-    alert(`Route found from ${origin} to ${destination}. Check the suggested routes panel.`);
+    // Close the modal
+    document.getElementById('configure-alerts-modal').classList.remove('active');
+    
+    // Show success notification
+    showNotification('Alert configuration saved successfully', 'success');
 }
 
-// Load mock routes
-function loadMockRoutes() {
-    const routes = [
-        {
-            name: 'Home to Office',
-            description: 'Via Highway 5, moderate traffic',
-            distance: '12.3 km',
-            time: '18 min'
-        },
-        {
-            name: 'Downtown to Airport',
-            description: 'Via Express Route, light traffic',
-            distance: '28.5 km',
-            time: '32 min'
-        },
-        {
-            name: 'Shopping Mall to Residential Area',
-            description: 'Via City Center, heavy traffic',
-            distance: '8.7 km',
-            time: '25 min'
-        }
-    ];
+/**
+ * Alert Prioritization functionality
+ */
+function savePriorityConfiguration() {
+    // Get form values
+    const trafficCongestion = document.getElementById('traffic-congestion-priority').value;
+    const signalMalfunction = document.getElementById('signal-malfunction-priority').value;
+    const roadClosure = document.getElementById('road-closure-priority').value;
+    const weatherAlert = document.getElementById('weather-alert-priority').value;
     
-    // Add routes to the list
-    routes.forEach(route => {
-        $('#suggestedRoutes').append(`
-            <li class="route-item">
-                <h4>${route.name}</h4>
-                <p>${route.description}</p>
-                <div class="route-meta">
-                    <span class="route-distance">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                            <path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path>
-                            <path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path>
-                            <path d="m8 22 4-10 4 10"></path>
-                        </svg>
-                        ${route.distance}
-                    </span>
-                    <span class="route-time">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        ${route.time}
-                    </span>
-                </div>
-            </li>
-        `);
+    // In a real application, this would save to a database
+    // For demo purposes, we'll just log the values and show a notification
+    console.log('Priority Configuration:', {
+        trafficCongestion,
+        signalMalfunction,
+        roadClosure,
+        weatherAlert
+    });
+    
+    // Close the modal
+    document.getElementById('prioritize-alerts-modal').classList.remove('active');
+    
+    // Show success notification
+    showNotification('Alert priorities saved successfully', 'success');
+}
+
+/**
+ * Auto Resolution functionality
+ */
+function saveAutoResolutionConfiguration() {
+    // Get form values
+    const enabled = document.getElementById('auto-resolution-toggle').checked;
+    const resolveAfter = document.getElementById('auto-resolve-after').value;
+    const resolveLow = document.getElementById('resolve-low').checked;
+    const resolveMedium = document.getElementById('resolve-medium').checked;
+    const resolveHigh = document.getElementById('resolve-high').checked;
+    
+    // In a real application, this would save to a database
+    // For demo purposes, we'll just log the values and show a notification
+    console.log('Auto Resolution Configuration:', {
+        enabled,
+        resolveAfter,
+        severities: {
+            low: resolveLow,
+            medium: resolveMedium,
+            high: resolveHigh
+        }
+    });
+    
+    // Close the modal
+    document.getElementById('auto-resolution-modal').classList.remove('active');
+    
+    // Show success notification
+    showNotification('Auto-resolution configuration saved successfully', 'success');
+}
+
+/**
+ * Generate Reports functionality
+ */
+function generateReport() {
+    // Get form values
+    const reportType = document.getElementById('report-type').value;
+    const includeFrequency = document.getElementById('include-frequency').checked;
+    const includeResolution = document.getElementById('include-resolution').checked;
+    const includeRoute = document.getElementById('include-route').checked;
+    const includeSeverity = document.getElementById('include-severity').checked;
+    const reportFormat = document.getElementById('report-format').value;
+    
+    // In a real application, this would generate a report
+    // For demo purposes, we'll just log the values and show a notification
+    console.log('Report Configuration:', {
+        reportType,
+        include: {
+            frequency: includeFrequency,
+            resolution: includeResolution,
+            route: includeRoute,
+            severity: includeSeverity
+        },
+        format: reportFormat
+    });
+    
+    // Close the modal
+    document.getElementById('generate-reports-modal').classList.remove('active');
+    
+    // Show success notification with download link
+    const notification = document.createElement('div');
+    notification.className = 'notification success';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span>
+                Report generated successfully! 
+                <a href="#" class="download-link">Download ${reportFormat.toUpperCase()}</a>
+            </span>
+            <button class="close-notification">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(notification);
+    
+    // Add active class after a small delay (for animation)
+    setTimeout(() => {
+        notification.classList.add('active');
+    }, 10);
+    
+    // Set up close button
+    const closeBtn = notification.querySelector('.close-notification');
+    closeBtn.addEventListener('click', () => {
+        notification.classList.remove('active');
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    });
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            notification.classList.remove('active');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+    }, 8000);
+    
+    // Add download link functionality
+    const downloadLink = notification.querySelector('.download-link');
+    downloadLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert(`In a real application, this would download the ${reportType} report in ${reportFormat.toUpperCase()} format.`);
     });
 }
 
-// Get appropriate icon for alert type
-function getAlertIcon(type) {
-    switch(type) {
-        case 'critical':
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-                <path d="M12 9v4"></path><path d="M12 17h.01"></path>
-            </svg>`;
-        case 'warning':
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 9v4"></path><path d="M12 17h.01"></path>
-                <circle cx="12" cy="12" r="10"></circle>
-            </svg>`;
-        case 'info':
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 16v-4"></path><path d="M12 8h.01"></path>
-            </svg>`;
-        default:
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 16v-4"></path><path d="M12 8h.01"></path>
-            </svg>`;
+// Add event listeners when the document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Configure Alerts
+    const saveConfigBtn = document.getElementById('save-config-btn');
+    if (saveConfigBtn) {
+        saveConfigBtn.addEventListener('click', saveAlertConfiguration);
     }
-}
-
-// Add CSS for the rotating refresh button
-$('<style>')
-    .prop('type', 'text/css')
-    .html(`
-        @keyframes rotating {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .rotating {
-            animation: rotating 1s linear infinite;
-        }
-    `)
-    .appendTo('head');
-
     
+    // Alert Prioritization
+    const savePriorityBtn = document.getElementById('save-priority-btn');
+    if (savePriorityBtn) {
+        savePriorityBtn.addEventListener('click', savePriorityConfiguration);
+    }
+    
+    // Auto Resolution
+    const saveAutoResolutionBtn = document.getElementById('save-auto-resolution-btn');
+    if (saveAutoResolutionBtn) {
+        saveAutoResolutionBtn.addEventListener('click', saveAutoResolutionConfiguration);
+    }
+    
+    // Generate Reports
+    const generateReportBtn = document.getElementById('generate-report-btn');
+    if (generateReportBtn) {
+        generateReportBtn.addEventListener('click', generateReport);
+    }
+});
