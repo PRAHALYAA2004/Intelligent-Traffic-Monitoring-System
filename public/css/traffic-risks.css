@@ -1,0 +1,443 @@
+/* Traffic Risks Page Styles */
+:root {
+    /* Risk colors */
+    --risk-high: #dc3545;
+    --risk-medium: #fd7e14;
+    --risk-low: #28a745;
+    --diversion-color: #0066cc;
+  
+    /* Map colors */
+    --map-background: #f8f9fa;
+    --map-border: #e0e0e0;
+  }
+  
+  /* Risk Map */
+  .risk-map {
+    width: 100%;
+    height: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--map-border);
+    background-color: var(--map-background);
+    margin-bottom: 15px;
+  }
+  
+  /* Map Legend */
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 10px 0;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+  
+  .legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    margin-right: 8px;
+  }
+  
+  .legend-color.high-risk {
+    background-color: var(--risk-high);
+  }
+  
+  .legend-color.medium-risk {
+    background-color: var(--risk-medium);
+  }
+  
+  .legend-color.low-risk {
+    background-color: var(--risk-low);
+  }
+  
+  .legend-color.diversion {
+    background-color: var(--diversion-color);
+  }
+  
+  /* Risk Zones List */
+  .risk-zones-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .risk-zone-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--sidebar-border);
+  }
+  
+  .risk-zone-item:last-child {
+    border-bottom: none;
+  }
+  
+  .risk-zone-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .risk-level {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  
+  .risk-level.high {
+    background-color: var(--risk-high);
+  }
+  
+  .risk-level.medium {
+    background-color: var(--risk-medium);
+  }
+  
+  .risk-level.low {
+    background-color: var(--risk-low);
+  }
+  
+  .risk-zone-name {
+    font-weight: 600;
+  }
+  
+  .risk-zone-location {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+  
+  .risk-zone-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .action-btn:hover {
+    background-color: var(--sidebar-hover);
+  }
+  
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-light);
+  }
+  
+  .action-btn.view-btn svg {
+    color: var(--primary-color);
+  }
+  
+  .action-btn.divert-btn svg {
+    color: var(--diversion-color);
+  }
+  
+  /* Diversions List */
+  .diversions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .diversion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--sidebar-border);
+  }
+  
+  .diversion-item:last-child {
+    border-bottom: none;
+  }
+  
+  .diversion-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .diversion-name {
+    font-weight: 600;
+  }
+  
+  .diversion-details {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+  
+  .diversion-status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  
+  .diversion-status.active {
+    background-color: #e8f5e9;
+    color: var(--status-green);
+  }
+  
+  .diversion-status.scheduled {
+    background-color: #e3f2fd;
+    color: var(--status-blue);
+  }
+  
+  .diversion-status.ended {
+    background-color: #f5f5f5;
+    color: var(--text-light);
+  }
+  
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  
+  .modal.active {
+    display: block;
+  }
+  
+  .modal-content {
+    background-color: white;
+    margin: 50px auto;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--sidebar-border);
+  }
+  
+  .modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  .close-modal {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+  
+  .close-modal:hover {
+    background-color: var(--sidebar-hover);
+  }
+  
+  .close-modal svg {
+    width: 18px;
+    height: 18px;
+    color: var(--text-light);
+  }
+  
+  .modal-body {
+    padding: 20px;
+  }
+  
+  .modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  /* Form Styles */
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    margin-right: 5px;
+  }
+  
+  /* Risk Zone Details */
+  .risk-zone-details {
+    margin-bottom: 20px;
+  }
+  
+  .detail-row {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .detail-label {
+    font-weight: 600;
+    width: 180px;
+    flex-shrink: 0;
+  }
+  
+  .detail-value {
+    flex: 1;
+  }
+  
+  .detail-value.risk-high {
+    color: var(--risk-high);
+    font-weight: 600;
+  }
+  
+  .detail-value.risk-medium {
+    color: var(--risk-medium);
+    font-weight: 600;
+  }
+  
+  .detail-value.risk-low {
+    color: var(--risk-low);
+    font-weight: 600;
+  }
+  
+  .risk-zone-chart {
+    margin-bottom: 20px;
+  }
+  
+  .risk-zone-chart h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .chart-container-sm {
+    height: 200px;
+  }
+  
+  .risk-zone-actions h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .recommended-actions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .recommended-actions li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+  }
+  
+  .recommended-actions li:last-child {
+    border-bottom: none;
+  }
+  
+  .recommended-actions li::before {
+    content: "•";
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  /* Utility Classes */
+  .icon-sm {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+  }
+  
+  /* Red stat icon */
+  .stat-icon.red {
+    background-color: var(--risk-high);
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 992px) {
+    .risk-map {
+      height: 400px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .risk-map {
+      height: 350px;
+    }
+  
+    .detail-row {
+      flex-direction: column;
+    }
+  
+    .detail-label {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .risk-map {
+      height: 300px;
+    }
+  
+    .map-legend {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+  
+  
