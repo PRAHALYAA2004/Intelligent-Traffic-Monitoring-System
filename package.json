@@ -4,8 +4,7 @@
   "description": "19CSE314 Software Engineering Project",
   "main": "server.js",
   "directories": {
-    "doc": "docs",
-    "test": "tests"
+    "doc": "docs"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -27,5 +26,14 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System/issues"
+  },
+  "homepage": "https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System#readme"
 }
