@@ -530,3 +530,31 @@
         gap: 5px;
     }
 }
+
+/* Route Map */
+.route-map {
+    height: var(--map-height);
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1; /* Ensure map stays below header */
+  }
+  
+  /* Added to ensure proper spacing */
+  .dashboard-content {
+    padding-top: 30px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Fix for the dashboard header */
+  .dashboard-header {
+    position: sticky;
+    top: 0;
+    z-index: 100; /* Higher z-index to stay above map */
+    background-color: white;
+  }
+  
+  
