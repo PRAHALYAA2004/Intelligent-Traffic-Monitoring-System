@@ -488,6 +488,31 @@
                 margin-top: 10px;
             }
         }
+        /* Route Map */
+.route-map {
+    height: var(--map-height);
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1; /* Ensure map stays below header */
+  }
+  
+  /* Added to ensure proper spacing */
+  .dashboard-content {
+    padding-top: 30px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Fix for the dashboard header */
+  .dashboard-header {
+    position: sticky;
+    top: 0;
+    z-index: 100; /* Higher z-index to stay above map */
+    background-color: white;
+  }
     </style>
 </head>
 <body>
@@ -499,7 +524,7 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="active">
+                    <li>
                         <a href="user-dashboard.html">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                             <span>Dashboard</span>
@@ -508,7 +533,7 @@
                     <li class="active">
                         <a href="speed-violation.html">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
-                            <span>Road Speed Limit Finder(Priya)</span>
+                            <span>Road Speed Limit Finder</span>
                         </a>
                     </li>
                     <li>
@@ -532,7 +557,7 @@
                     <li>
                         <a href="predictive-traffic.html">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 12h10"></path><path d="M9 4v16"></path><path d="m3 9 3 3-3 3"></path><path d="M14 8h8"></path><path d="M18 4v16"></path><path d="m22 12-3 3-3-3"></path></svg>
-                            <span>Citizen Traffic Watch(Priya)</span>
+                            <span>Citizen Traffic Watch</span>
                         </a>
                     </li>
                     <li>
