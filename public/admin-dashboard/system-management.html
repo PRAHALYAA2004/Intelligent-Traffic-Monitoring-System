@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Traffic Risks - TrafficIQ</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/traffic-risks.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+                <span class="admin-badge">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="admin-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="active" >
+                        <a href="system-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <span>System Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="user-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span>User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="camera-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                            <span>Camera Network</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="signal-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Signal Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="penalty-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                            <span>Penalty System</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>
+                            <span>Reports & Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar admin">AD</div>
+                    <div class="user-info">
+                        <h4>Admin User</h4>
+                        <p>System Administrator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+                </div>
+                <h2>Manage Traffic Risks</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search locations...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Risk Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>High-Risk Zones</h3>
+                            <p class="stat-value">8</p>
+                            <p class="stat-change negative">+2 from yesterday</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"></path><path d="M12 17h.01"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Medium-Risk Zones</h3>
+                            <p class="stat-value">15</p>
+                            <p class="stat-change negative">+3 from yesterday</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Active Diversions</h3>
+                            <p class="stat-value">12</p>
+                            <p class="stat-change positive">+4 from yesterday</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Traffic Efficiency</h3>
+                            <p class="stat-value">78%</p>
+                            <p class="stat-change positive">+5% from yesterday</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Map Section -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Traffic Risk Map</h3>
+                            <div class="card-actions">
+                                <select id="mapViewSelector">
+                                    <option value="risk">Risk Zones</option>
+                                    <option value="congestion">Congestion</option>
+                                    <option value="diversions">Diversions</option>
+                                    <option value="all">All Layers</option>
+                                </select>
+                                <button class="refresh-btn" id="refreshMap">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div id="risk-map" class="risk-map"></div>
+                            <div class="map-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color high-risk"></span>
+                                    <span>High Risk</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color medium-risk"></span>
+                                    <span>Medium Risk</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color low-risk"></span>
+                                    <span>Low Risk</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color diversion"></span>
+                                    <span>Diversion Route</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Zones and Diversions -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Accident-Prone Zones</h3>
+                            <div class="card-actions">
+                                <select id="riskZoneFilter">
+                                    <option value="all">All Zones</option>
+                                    <option value="high">High Risk</option>
+                                    <option value="medium">Medium Risk</option>
+                                    <option value="low">Low Risk</option>
+                                </select>
+                                <button class="refresh-btn" id="refreshRiskZones">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <ul class="risk-zones-list" id="riskZonesList">
+                                <!-- Risk zones will be populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Active Diversions</h3>
+                            <div class="card-actions">
+                                <button class="primary-btn" id="createDiversionBtn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sm"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                    Create Diversion
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <ul class="diversions-list" id="diversionsList">
+                                <!-- Diversions will be populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historical Data and Prediction -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Risk Prediction & Analysis</h3>
+                            <div class="card-actions">
+                                <select id="predictionTimeRange">
+                                    <option value="day">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="riskPredictionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Diversion Modal -->
+    <div id="createDiversionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Traffic Diversion</h3>
+                <button class="close-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="diversionForm">
+                    <div class="form-group">
+                        <label for="diversionName">Diversion Name</label>
+                        <input type="text" id="diversionName" class="form-control" placeholder="Enter diversion name">
+                    </div>
+                    <div class="form-group">
+                        <label for="diversionLocation">Location</label>
+                        <input type="text" id="diversionLocation" class="form-control" placeholder="Enter location">
+                    </div>
+                    <div class="form-group">
+                        <label for="diversionReason">Reason</label>
+                        <select id="diversionReason" class="form-control">
+                            <option value="accident">Accident</option>
+                            <option value="congestion">Heavy Congestion</option>
+                            <option value="construction">Road Construction</option>
+                            <option value="event">Special Event</option>
+                            <option value="weather">Weather Conditions</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="diversionStart">Start Time</label>
+                        <input type="datetime-local" id="diversionStart" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="diversionEnd">End Time (Estimated)</label>
+                        <input type="datetime-local" id="diversionEnd" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="diversionRoute">Diversion Route</label>
+                        <textarea id="diversionRoute" class="form-control" rows="3" placeholder="Describe the diversion route"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Notification Methods</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="notifyApp" checked> Mobile App</label>
+                            <label><input type="checkbox" id="notifySMS" checked> SMS</label>
+                            <label><input type="checkbox" id="notifyEmail"> Email</label>
+                            <label><input type="checkbox" id="notifySignage" checked> Digital Signage</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="saveDiversionBtn" class="primary-btn">Create Diversion</button>
+                <button class="secondary-btn close-modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Zone Details Modal -->
+    <div id="riskZoneModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="riskZoneTitle">Risk Zone Details</h3>
+                <button class="close-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="risk-zone-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Risk Level:</span>
+                        <span id="riskLevelDetail" class="detail-value risk-high">High</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Location:</span>
+                        <span id="locationDetail" class="detail-value">Main St & 5th Ave</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Incidents (Last 30 Days):</span>
+                        <span id="incidentsDetail" class="detail-value">12</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Average Daily Traffic:</span>
+                        <span id="trafficDetail" class="detail-value">15,000 vehicles</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Peak Hours:</span>
+                        <span id="peakHoursDetail" class="detail-value">8:00 - 10:00, 17:00 - 19:00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Contributing Factors:</span>
+                        <span id="factorsDetail" class="detail-value">Poor visibility, Intersection design</span>
+                    </div>
+                </div>
+                
+                <div class="risk-zone-chart">
+                    <h4>Incident History</h4>
+                    <div class="chart-container-sm">
+                        <canvas id="incidentHistoryChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="risk-zone-actions">
+                    <h4>Recommended Actions</h4>
+                    <ul id="recommendedActionsList" class="recommended-actions">
+                        <!-- Will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="createDiversionFromRiskBtn" class="primary-btn">Create Diversion</button>
+                <button id="viewHistoricalDataBtn" class="secondary-btn">View Historical Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/traffic-risks.js"></script>
+</body>
+</html>
