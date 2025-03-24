@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Transport - TrafficIQ</title>
+    <!-- Include the same stylesheets as user-dashboard.html -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Leaflet CSS for OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom styles from the original public-transport.html -->
+    <style>
+        select option[disabled][selected] {
+        color: #999; /* Light gray color for placeholders */
+        font-style: italic; /* Optional: Make the placeholder text italic */
+        }
+        .notification-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.notification-btn:hover {
+    background-color: var(--sidebar-hover);
+    font-weight: bold;
+}
+
+.notification-btn .fa-bell {
+    font-size: 18px; /* Adjust the size of the bell icon */
+    color: #ffffff; /* Adjust the color of the bell icon */
+    text-shadow: 
+        -1px -1px 0 rgb(0, 0, 0),  
+         1px -1px 0 rgb(0, 0, 0),
+        -1px  1px 0 rgb(0, 0, 0),
+         1px  1px 0 rgb(0, 0, 0); /* White outline effect */
+}
+
+.fraction {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 14px; /* Adjust the size as needed */
+}
+
+.fraction sup,
+.fraction sub {
+    display: block;
+    line-height: 1;
+}
+
+.fraction sup {
+    font-size: 0.8em; /* Adjust the size of the numerator */
+}
+
+.fraction sub {
+    font-size: 0.8em; /* Adjust the size of the denominator */
+}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif; /* Updated to use Inter font */
+        }
+
+        body {
+            background: #f5f7fa; /* Match dashboard background */
+        }
+
+        /* Adjust main-content to fit within dashboard layout */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        /* Dashboard Header adjustments */
+        .dashboard-header {
+            height: var(--header-height);
+            background-color: white;
+            border-bottom: 1px solid var(--sidebar-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .dashboard-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .dashboard-header button {
+            background-color: transparent;
+            border: none;
+            color: var(--text-color);
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .dashboard-header button:hover,
+        .dashboard-header button.active {
+            background-color: var(--sidebar-hover);
+            font-weight: bold;
+        }
+
+        /* Sections */
+        .section {
+            margin-top: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Route Map Section */
+        #route-map {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-form select,
+        .search-form button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .search-form select:focus,
+        .search-form button:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .search-form button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-form button:hover {
+            background: var(--primary-dark);
+        }
+
+        .map-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #map {
+            height: 500px;
+            width: 70%;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            z-index:1
+        }
+
+        .route-info {
+            width: 30%;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .route-info h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 18px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+        }
+
+        .route-info p {
+            margin: 10px 0;
+            color: var(--text-color);
+        }
+
+        .alert {
+            color: var(--alert-critical);
+            font-weight: bold;
+            background-color: #fee2e2;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .change-bus-btn {
+            background: var(--status-orange);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .change-bus-btn:hover {
+            background: #e06b00;
+        }
+
+        .alternative-buses {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .alternative-buses h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 18px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+        }
+
+        .alternative-buses ul {
+            list-style: none;
+        }
+
+        .alternative-buses li {
+            padding: 10px;
+            background-color: #ffffff;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .alternative-buses li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Booking Section */
+        #booking h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #F9FAFB;
+        }
+
+        table tr:hover {
+            background-color: #E5E7EB;
+            cursor: pointer;
+        }
+
+        .book-btn {
+            background: var(--status-green);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .book-btn.booked {
+            background: var(--alert-critical);
+        }
+
+        .book-btn:hover {
+            background: #218838;
+        }
+
+        .passenger-counter {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .passenger-counter button {
+            background: #ccc;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .passenger-counter button:hover {
+            background: #bbb;
+        }
+
+        /* Feedback Section Styles */
+        .dashboard-content {
+            background-color: #f9f7fa;
+            padding: 20px;
+        }
+
+        .main-content-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feedback-container, .chart-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            margin-bottom: 20px;
+        }
+
+        .feedback-section {
+            width: 45%;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .feedback-section:hover {
+            transform: scale(1.02);
+            border-color: var(--status-green);
+        }
+
+        .feedback-section h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .thanks-message {
+            color: #000000;
+            margin-top: 10px;
+            font-style: italic;
+            display: none;
+        }
+
+        .star-rating {
+            margin-top: 10px;
+            font-size: 24px;
+        }
+
+        .star-rating .star {
+            color: #ddd;
+            cursor: pointer;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+
+        .star-rating .star.filled {
+            color: #ffd700;
+        }
+
+        .pie-chart-section, .line-chart-section {
+            width: 45%;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .pie-chart-section:hover, .line-chart-section:hover {
+            transform: scale(1.02);
+            border-color: var(--status-green);
+        }
+
+        .pie-chart-section h3, .line-chart-section h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        canvas {
+            width: 100%;
+            height: 200px;
+        }
+
+        .guidelines-section {
+            width: 45%;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .guidelines-section:hover {
+            transform: scale(1.02);
+            border-color: var(--status-green);
+        }
+
+        .guidelines-section h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .guidelines-section ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .guidelines-section li {
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .divider {
+            border: 0;
+            height: 1px;
+            background: #ccc;
+            margin: 20px 0;
+        }
+
+        .vertical-divider {
+            width: 1px;
+            background: #ccc;
+            margin: 0 20px;
+            align-self: stretch;
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #fff;
+            padding: 40px 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto 20px;
+        }
+
+        .footer-logo {
+            color: var(--primary-color);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links div {
+            flex: 1;
+        }
+
+        .footer-links h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            display: block;
+            color: #666;
+            text-decoration: none;
+            margin-bottom: 5px;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 20px auto 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .social-icons a {
+            margin-left: 10px;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .social-icons a:hover {
+            color: var(--primary-color);
+        }
+
+        select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        /* Analytics Section */
+        .analytics-section {
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 2px solid #ccc;
+            display: none;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .late-buses {
+            width: 50%;
+        }
+
+        .late-buses h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .late-buses table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .late-buses th, .late-buses td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .late-buses th {
+            background: var(--alert-critical);
+            color: white;
+        }
+
+        .late-buses tr:nth-child(even) {
+            background-color: #F9FAFB;
+        }
+
+        .active-users {
+            width: 50%;
+        }
+
+        .active-users h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        #active-users-chart {
+            max-height: 300px;
+        }
+
+        /* Payment Section */
+        #payment {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .payment-header .back-arrow {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .payment-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .payment-header .secure {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .total-amount {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #E5E7EB;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .total-amount h3 {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .cashback {
+            background: var(--status-green);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .payment-methods select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border 0.3s;
+        }
+
+        .payment-methods select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card-details .note {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .card-details .note a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .card-details label {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .card-details input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            transition: border 0.3s;
+        }
+
+        .card-details input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .card-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card-info div {
+            flex: 1;
+            position: relative;
+        }
+
+        .card-info .help {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .pay-btn {
+            background: var(--status-orange);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .pay-btn:hover {
+            background: #e06b00;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .dashboard-header {
+                padding: 0 20px;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .map-container {
+                flex-direction: column;
+            }
+
+            #map {
+                width: 100%;
+                height: 300px;
+            }
+
+            .route-info {
+                width: 100%;
+            }
+
+            .analytics-section {
+                flex-direction: column;
+            }
+
+            .late-buses, .active-users {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (Copied from user-dashboard.html) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="user-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="speed-violation.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
+                            <span>Road Speed Limit Finder(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="traffic-signal.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Traffic Signal</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="parking-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path></svg>
+                            <span>Parking Management</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="public-transport.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M8 6v6"></path><path d="m8 16 4 4"></path><path d="m16 10 4-4"></path><circle cx="16" cy="16" r="6"></circle></svg>
+                            <span>Public Transport</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="predictive-traffic.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 12h10"></path><path d="M9 4v16"></path><path d="m3 9 3 3-3 3"></path><path d="M14 8h8"></path><path d="M18 4v16"></path><path d="m22 12-3 3-3-3"></path></svg>
+                            <span>Citizen Traffic Watch(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dynamic-route-adjustment.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path><path d="M12 3v6"></path></svg>
+                            <span>Route Adjustment</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar">JD</div>
+                    <div class="user-info">
+                        <h4>John Doe</h4>
+                        <p>Traffic Operator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Header (Copied from user-dashboard.html) -->
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+                </div>
+                <h2>Public Transport</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i> 
+                        
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Navigation Buttons (Previously in dashboard-header) -->
+                <div class="dashboard-header">
+                    <button onclick="showSection('route-map')">Route Map</button>
+                    <button onclick="showSection('booking')">Booking</button>
+                    <button onclick="showSection('feedback')">Feedback</button>
+                </div>
+
+                <!-- Route Map Section -->
+                <div id="route-map" class="section">
+                    <div class="search-form">
+                        <select id="vehicle-number">
+                            <option value="" disabled selected>Vehicle Number</option>
+                            <!-- Populated via JavaScript -->
+                        </select>
+                        <select id="pickup">
+                            <option value="" disabled selected>Pickup</option>
+                            <!-- Populated via JavaScript -->
+                        </select>
+                        <select id="dropoff">
+                            <option value="" disabled selected>Dropoff</option>
+                            <!-- Populated via JavaScript -->
+                        </select>
+                        <button onclick="showRoute()">Search Route</button>
+                    </div>
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="route-info">
+                            <h3>Route Information</h3>
+                            <p id="route-text">Please select a route to view details.</p>
+                            <p id="alert-text" class="alert"></p>
+                            <button class="change-bus-btn" onclick="showAlternativeBuses()">Change Bus</button>
+                            <div class="alternative-buses" id="alternative-buses">
+                                <h3>Alternative Buses (No Delay)</h3>
+                                <ul id="alternative-bus-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Section -->
+                <div id="booking" class="section" style="display: none;">
+                    <h2>Available Buses</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bus Number</th>
+                                <th>Route</th>
+                                <th>Departure Time</th>
+                                <th>Seats Available</th>
+                                <th>Price</th>
+                                <th>Passengers</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bus-table">
+                            <!-- Populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Feedback Section -->
+                <div id="feedback" class="section" style="display: none;">
+                    <div class="dashboard-content">
+                        <div class="main-content-inner">
+                            <!-- Feedback and Pie Chart Row -->
+                            <div class="feedback-container">
+                                <div class="pie-chart-section">
+                                    <h3>Feedback Overview</h3>
+                                    <canvas id="pieFeedbackChart"></canvas>
+                                </div>
+                                <div class="vertical-divider"></div>
+                                <div class="feedback-section">
+                                    <h2>WRITE YOUR FEEDBACK</h2>
+                                    <textarea id="feedbackInput" placeholder="Write your feedback here..."></textarea>
+                                    <div class="star-rating" id="starRating">
+                                        <span class="star" data-value="1">★</span>
+                                        <span class="star" data-value="2">★</span>
+                                        <span class="star" data-value="3">★</span>
+                                        <span class="star" data-value="4">★</span>
+                                        <span class="star" data-value="5">★</span>
+                                    </div>
+                                    <button id="submitBtn" class="submit-btn">SUBMIT</button>
+                                    <p id="thanksMessage" class="thanks-message">Thanks for your contribution.</p>
+                                </div>
+                            </div>
+
+                            <!-- Horizontal Divider Line -->
+                            <hr class="divider">
+
+                            <!-- Guidelines and Line Chart Row -->
+                            <div class="chart-container">
+                                <div class="guidelines-section">
+                                    <h3>Why Your Feedback Matters</h3>
+                                    <ul>
+                                        <li>Helps us improve TrafficIQ to better suit your needs.</li>
+                                        <li>Guides future updates for enhanced functionality.</li>
+                                        <li>Ensures the application remains user-friendly and effective.</li>
+                                        <li>Allows us to address issues and implement new features.</li>
+                                    </ul>
+                                </div>
+                                <div class="vertical-divider"></div>
+                                <div class="line-chart-section">
+                                    <h3>Monthly Feedback</h3>
+                                    <canvas id="monthlyFeedbackChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <footer>
+                            <div class="footer-top">
+                                <div class="footer-logo">TrafficIQ</div>
+                            </div>
+                            <div class="footer-links">
+                                <div>
+                                    <h4>Product</h4>
+                                    <a href="#">Pricing</a>
+                                    <a href="#">Features</a>
+                                    <a href="#">Updates</a>
+                                </div>
+                                <div>
+                                    <h4>Company</h4>
+                                    <a href="#">About us</a>
+                                    <a href="#">Contact us</a>
+                                    <a href="#">Careers</a>
+                                </div>
+                                <div>
+                                    <h4>Plans & Pricing</h4>
+                                    <a href="#">Startup</a>
+                                    <a href="#">Organization</a>
+                                </div>
+                            </div>
+                            <div class="footer-bottom">
+                                <div>
+                                    <select>
+                                        <option>English</option>
+                                    </select>
+                                </div>
+                                <div>© 2025 BRAND, INC. • PRIVACY • TERMS</div>
+                                <div class="social-icons">
+                                    <a href="#">Twitter</a>
+                                    <a href="#">Facebook</a>
+                                    <a href="#">Instagram</a>
+                                    <a href="#">LinkedIn</a>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+
+                <!-- Payment Section -->
+                <div id="payment" class="section" style="display: none;">
+                    <div class="payment-header">
+                        <span class="back-arrow" onclick="showSection('booking')">←</span>
+                        <p>Step 3 of 3</p>
+                        <h2>Payment</h2>
+                        <p class="secure">100% Secure</p>
+                    </div>
+                    <div class="total-amount">
+                        <p>Total Amount</p>
+                        <h3 id="total-price">₹0</h3>
+                    </div>
+                    <div class="cashback">
+                        <p>5% Cashback: Claim now with payment offers</p>
+                    </div>
+                    <div class="payment-methods">
+                        <select>
+                            <option>Credit/Debit/ATM Card</option>
+                            <option>Net Banking</option>
+                            <option>Wallets</option>
+                            <option>UPI - Pay by any UPI app</option>
+                            <option>Cash on Delivery</option>
+                            <option>Gift Card</option>
+                            <option disabled>EMI (Unavailable)</option>
+                        </select>
+                    </div>
+                    <div class="card-details">
+                        <p class="note">Note: Please ensure your card can be used for online transactions. <a href="#">Learn More</a></p>
+                        <label for="card-number">Card Number</label>
+                        <input type="text" id="card-number" placeholder="XXXX XX XXXX " maxlength="10" oninput="validateCardNumber(this)">
+                        <p id="card-error" class="error-message" style="color: red; display: none;">Card number must be at least 10 digits.</p>
+                    </div>
+                    <button class="pay-btn" onclick="completePayment()">Pay <span id="pay-price">₹0</span></button>
+                    <p class="footer-text">Thank You! 😊</p>
+                </div>
+
+                <!-- Analytics Section -->
+                <div class="analytics-section" id="analytics-section">
+                    <!-- Late Buses Table -->
+                    <div class="late-buses">
+                        <h3>Buses Running Late</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Bus Number</th>
+                                    <th>Route</th>
+                                    <th>Delay</th>
+                                </tr>
+                            </thead>
+                            <tbody id="late-buses-table">
+                                <!-- Populated via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Active Users Chart -->
+                    <div class="active-users">
+                        <h3>Active Users Over Time</h3>
+                        <canvas id="active-users-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Leaflet JS for OpenStreetMap -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Mobile menu toggle (Copied from user-dashboard.html)
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Show the selected section and hide others
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+
+            // Show analytics section only on route-map
+            const analyticsSection = document.getElementById('analytics-section');
+            if (sectionId === 'route-map') {
+                analyticsSection.style.display = 'flex';
+            } else {
+                analyticsSection.style.display = 'none';
+            }
+
+            // Update active button in dashboard header
+            const buttons = document.querySelectorAll('.dashboard-header button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`.dashboard-header button[onclick="showSection('${sectionId}')"]`).classList.add('active');
+        }
+
+        // State to track selected bus and passengers
+        let selectedBus = null;
+        let selectedPassengers = 0;
+
+        // Redirect to payment page with bus details
+        function goToPayment(busNumber, price) {
+            const passengerCount = parseInt(document.getElementById(`passenger-count-${busNumber}`).textContent);
+            selectedBus = busNumber;
+            selectedPassengers = passengerCount;
+            const totalPrice = price * passengerCount;
+            document.getElementById('total-price').textContent = `₹${totalPrice}`;
+            document.getElementById('pay-price').textContent = `₹${totalPrice}`;
+            showSection('payment');
+        }
+        function validateCardNumber(input) {
+            const cardNumber = input.value.replace(/\s/g, ''); // Remove spaces
+            const cardError = document.getElementById('card-error');
+
+            if (cardNumber.length < 10 || isNaN(cardNumber)) {
+                cardError.style.display = 'block'; // Show error message
+            } else {
+                cardError.style.display = 'none'; // Hide error message
+            }
+        }
+
+        // Complete payment and update seats
+        function completePayment() {
+            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+            if (!selectedBus || selectedPassengers <= 0) {
+                alert("Please select a bus and number of passengers.");
+                return;
+            }
+            if (cardNumber.length < 10 || isNaN(cardNumber)) {
+                alert("Please enter a valid card number with at least 10 digits.");
+                return;
+            }
+
+            // Update seats
+            const seatsElement = document.getElementById(`seats-${selectedBus}`);
+            const currentSeats = parseInt(seatsElement.textContent);
+            const newSeats = currentSeats - selectedPassengers;
+            if (newSeats < 0) {
+                alert("Not enough seats available.");
+                return;
+            }
+            seatsElement.textContent = newSeats;
+
+            // Update button color
+            const bookButton = document.getElementById(`book-btn-${selectedBus}`);
+            bookButton.classList.add('booked');
+
+            alert("Payment Completed");
+            selectedBus = null;
+            selectedPassengers = 0;
+            showSection('booking');
+        }
+
+        // Increment passenger count
+        function incrementPassengers(busNumber) {
+            const passengerCountElement = document.getElementById(`passenger-count-${busNumber}`);
+            let count = parseInt(passengerCountElement.textContent);
+            const seatsElement = document.getElementById(`seats-${busNumber}`);
+            const availableSeats = parseInt(seatsElement.textContent);
+            if (count < availableSeats) {
+                count++;
+                passengerCountElement.textContent = count;
+            } else {
+                alert("Cannot add more passengers. Seats are limited.");
+            }
+        }
+
+        // Decrement passenger count
+        function decrementPassengers(busNumber) {
+            const passengerCountElement = document.getElementById(`passenger-count-${busNumber}`);
+            let count = parseInt(passengerCountElement.textContent);
+            if (count > 0) {
+                count--;
+                passengerCountElement.textContent = count;
+            }
+        }
+
+        // Dummy Data
+        const vehicleNumbers = Array.from({ length: 30 }, (_, i) => `TN${1000 + i}`);
+
+        // Coordinates for Chennai and suburban areas (approximate)
+        const points = {
+            "Broadway": [13.0878, 80.2836],
+            "Parrys Corner": [13.0899, 80.2885],
+            "Central Railway Station": [13.0821, 80.2751],
+            "Egmore": [13.0778, 80.2609],
+            "Kilpauk": [13.0819, 80.2451],
+            "Chetpet": [13.0712, 80.2417],
+            "Purasaiwakkam": [13.0871, 80.2551],
+            "Vepery": [13.0856, 80.2632],
+            "T. Nagar": [13.0403, 80.2337],
+            "Mylapore": [13.0334, 80.2687],
+            "Triplicane": [13.0588, 80.2753],
+            "Nungambakkam": [13.0621, 80.2403],
+            "Washermanpet": [13.1096, 80.2872],
+            "Royapuram": [13.1042, 80.2935],
+            "Tondiarpet": [13.1267, 80.2881],
+            "Perambur": [13.1073, 80.2446],
+            "Kolathur": [13.1247, 80.2145],
+            "Madhavaram": [13.1482, 80.2309],
+            "Red Hills": [13.1917, 80.1881],
+            "Ennore": [13.2145, 80.3203],
+            "Manali": [13.1667, 80.2667],
+            "Adyar": [13.0064, 80.2575],
+            "Besant Nagar": [13.0001, 80.2666],
+            "Thiruvanmiyur": [12.9830, 80.2594],
+            "Saidapet": [13.0213, 80.2231],
+            "Guindy": [13.0067, 80.2206],
+            "Velachery": [12.9755, 80.2205],
+            "Madipakkam": [12.9645, 80.2085],
+            "Pallikaranai": [12.9379, 80.2153],
+            "Medavakkam": [12.9171, 80.1923],
+            "Sholinganallur": [12.8975, 80.2279],
+            "Koyambedu": [13.0694, 80.1948],
+            "Anna Nagar": [13.0836, 80.2101],
+            "Mogappair": [13.0835, 80.1750],
+            "Ambattur": [13.0983, 80.1615],
+            "Avadi": [13.1147, 80.1010],
+            "Poonamallee": [13.0478, 80.0945],
+            "Porur": [13.0354, 80.1579],
+            "Tambaram": [12.9246, 80.1279],
+            "Chromepet": [12.9516, 80.1408],
+            "Pallavaram": [12.9677, 80.1491],
+            "Thoraipakkam": [12.9416, 80.2362],
+            "Kelambakkam": [12.7963, 80.2220],
+            "Kovalam": [12.7905, 80.2513],
+            "Siruseri": [12.8370, 80.2270],
+            "Mahabalipuram": [12.6208, 80.1945],
+            "Alandur": [13.0041, 80.2006],
+            "Ashok Nagar": [13.0351, 80.2123],
+            "Vadapalani": [13.0521, 80.2131],
+            "Kodambakkam": [13.0525, 80.2255],
+            "Ekkattuthangal": [13.0218, 80.2048]
+        };
+
+        // Expanded logical routes based on geographical proximity
+        const routes = {
+            "Broadway-T. Nagar": ["Broadway", "Central Railway Station", "T. Nagar"],
+            "Egmore-Anna Nagar": ["Egmore", "Chetpet", "Anna Nagar"],
+            "Adyar-Tambaram": ["Adyar", "Guindy", "Tambaram"],
+            "Washermanpet-Red Hills": ["Washermanpet", "Madhavaram", "Red Hills"],
+            "Koyambedu-Velachery": ["Koyambedu", "Porur", "Velachery"],
+            "Mylapore-Sholinganallur": ["Mylapore", "Thiruvanmiyur", "Sholinganallur"],
+            "Perambur-Poonamallee": ["Perambur", "Anna Nagar", "Poonamallee"],
+            "Nungambakkam-Chromepet": ["Nungambakkam", "Saidapet", "Chromepet"],
+            "Thoraipakkam-Mahabalipuram": ["Thoraipakkam", "Kelambakkam", "Mahabalipuram"],
+            "Kolathur-Ambattur": ["Kolathur", "Perambur", "Ambattur"],
+            "T. Nagar-Alandur": ["T. Nagar", "Saidapet", "Alandur"],
+            "Ashok Nagar-Kodambakkam": ["Ashok Nagar", "Vadapalani", "Kodambakkam"],
+            "Vadapalani-Ekkattuthangal": ["Vadapalani", "Ashok Nagar", "Ekkattuthangal"],
+            "Central Railway Station-Mylapore": ["Central Railway Station", "Triplicane", "Mylapore"],
+            "Parrys Corner-Ennore": ["Parrys Corner", "Washermanpet", "Ennore"],
+            "Kilpauk-Madhavaram": ["Kilpauk", "Perambur", "Madhavaram"],
+            "Chetpet-Pallavaram": ["Chetpet", "Guindy", "Pallavaram"],
+            "Purasaiwakkam-Medavakkam": ["Purasaiwakkam", "Velachery", "Medavakkam"],
+            "Vepery-Besant Nagar": ["Vepery", "Mylapore", "Besant Nagar"],
+            "Royapuram-Manali": ["Royapuram", "Tondiarpet", "Manali"]
+        };
+
+        // Expanded bus data with seats, price, and departure time
+        const busData = {
+            "TN1010": { route: "Broadway-T. Nagar", departureTime: "08:00 AM", seats: 10, price: 50 },
+            "TN1012": { route: "Egmore-Anna Nagar", departureTime: "09:00 AM", seats: 15, price: 60 },
+            "TN1014": { route: "Adyar-Tambaram", departureTime: "07:45 AM", seats: 8, price: 80 },
+            "TN1016": { route: "Washermanpet-Red Hills", departureTime: "08:30 AM", seats: 12, price: 70 },
+            "TN1018": { route: "Koyambedu-Velachery", departureTime: "07:30 AM", seats: 20, price: 90 },
+            "TN1020": { route: "Mylapore-Sholinganallur", departureTime: "09:00 AM", seats: 5, price: 85 },
+            "TN1022": { route: "Perambur-Poonamallee", departureTime: "08:00 AM", seats: 18, price: 65 },
+            "TN1024": { route: "Nungambakkam-Chromepet", departureTime: "07:45 AM", seats: 7, price: 75 },
+            "TN1026": { route: "Thoraipakkam-Mahabalipuram", departureTime: "09:00 AM", seats: 14, price: 120 },
+            "TN1028": { route: "Kolathur-Ambattur", departureTime: "08:00 AM", seats: 9, price: 55 },
+            "TN1030": { route: "T. Nagar-Alandur", departureTime: "08:15 AM", seats: 11, price: 45 },
+            "TN1032": { route: "Ashok Nagar-Kodambakkam", departureTime: "09:30 AM", seats: 16, price: 40 },
+            "TN1034": { route: "Vadapalani-Ekkattuthangal", departureTime: "07:00 AM", seats: 13, price: 35 },
+            "TN1036": { route: "Central Railway Station-Mylapore", departureTime: "08:45 AM", seats: 10, price: 50 },
+            "TN1038": { route: "Parrys Corner-Ennore", departureTime: "09:15 AM", seats: 17, price: 80 },
+            "TN1040": { route: "Kilpauk-Madhavaram", departureTime: "08:30 AM", seats: 12, price: 65 },
+            "TN1042": { route: "Chetpet-Pallavaram", departureTime: "07:30 AM", seats: 9, price: 85 },
+            "TN1044": { route: "Purasaiwakkam-Medavakkam", departureTime: "09:00 AM", seats: 14, price: 90 },
+            "TN1046": { route: "Vepery-Besant Nagar", departureTime: "08:00 AM", seats: 6, price: 70 },
+            "TN1048": { route: "Royapuram-Manali", departureTime: "09:30 AM", seats: 15, price: 75 }
+        };
+
+        // Expanded alternative buses (logical paths with no delay for all routes)
+        const alternativeBuses = {
+            "Broadway-T. Nagar": [
+                { busNumber: "TN1011", route: ["Broadway", "Triplicane", "T. Nagar"], departureTime: "08:30 AM", estimatedTime: "30m" }
+            ],
+            "Egmore-Anna Nagar": [
+                { busNumber: "TN1013", route: ["Egmore", "Purasaiwakkam", "Anna Nagar"], departureTime: "09:30 AM", estimatedTime: "30m" }
+            ],
+            "Adyar-Tambaram": [
+                { busNumber: "TN1015", route: ["Adyar", "Velachery", "Tambaram"], departureTime: "08:15 AM", estimatedTime: "50m" }
+            ],
+            "Washermanpet-Red Hills": [
+                { busNumber: "TN1017", route: ["Washermanpet", "Kolathur", "Red Hills"], departureTime: "09:00 AM", estimatedTime: "45m" }
+            ],
+            "Koyambedu-Velachery": [
+                { busNumber: "TN1019", route: ["Koyambedu", "Saidapet", "Velachery"], departureTime: "08:00 AM", estimatedTime: "55m" }
+            ],
+            "Mylapore-Sholinganallur": [
+                { busNumber: "TN1021", route: ["Mylapore", "Besant Nagar", "Sholinganallur"], departureTime: "09:30 AM", estimatedTime: "45m" }
+            ],
+            "Perambur-Poonamallee": [
+                { busNumber: "TN1023", route: ["Perambur", "Mogappair", "Poonamallee"], departureTime: "08:30 AM", estimatedTime: "40m" }
+            ],
+            "Nungambakkam-Chromepet": [
+                { busNumber: "TN1025", route: ["Nungambakkam", "Pallavaram", "Chromepet"], departureTime: "08:15 AM", estimatedTime: "50m" }
+            ],
+            "Thoraipakkam-Mahabalipuram": [
+                { busNumber: "TN1027", route: ["Thoraipakkam", "Kovalam", "Mahabalipuram"], departureTime: "09:30 AM", estimatedTime: "1h 10m" }
+            ],
+            "Kolathur-Ambattur": [
+                { busNumber: "TN1029", route: ["Kolathur", "Mogappair", "Ambattur"], departureTime: "08:30 AM", estimatedTime: "35m" }
+            ],
+            "T. Nagar-Alandur": [
+                { busNumber: "TN1031", route: ["T. Nagar", "Guindy", "Alandur"], departureTime: "08:45 AM", estimatedTime: "25m" }
+            ],
+            "Ashok Nagar-Kodambakkam": [
+                { busNumber: "TN1033", route: ["Ashok Nagar", "Vadapalani", "Kodambakkam"], departureTime: "10:00 AM", estimatedTime: "20m" }
+            ],
+            "Vadapalani-Ekkattuthangal": [
+                { busNumber: "TN1035", route: ["Vadapalani", "Ashok Nagar", "Ekkattuthangal"], departureTime: "07:30 AM", estimatedTime: "15m" }
+            ],
+            "Central Railway Station-Mylapore": [
+                { busNumber: "TN1037", route: ["Central Railway Station", "Mylapore"], departureTime: "09:15 AM", estimatedTime: "25m" }
+            ],
+            "Parrys Corner-Ennore": [
+                { busNumber: "TN1039", route: ["Parrys Corner", "Royapuram", "Ennore"], departureTime: "09:45 AM", estimatedTime: "50m" }
+            ],
+            "Kilpauk-Madhavaram": [
+                { busNumber: "TN1041", route: ["Kilpauk", "Kolathur", "Madhavaram"], departureTime: "09:00 AM", estimatedTime: "40m" }
+            ],
+            "Chetpet-Pallavaram": [
+                { busNumber: "TN1043", route: ["Chetpet", "Saidapet", "Pallavaram"], departureTime: "08:00 AM", estimatedTime: "55m" }
+            ],
+            "Purasaiwakkam-Medavakkam": [
+                { busNumber: "TN1045", route: ["Purasaiwakkam", "Pallikaranai", "Medavakkam"], departureTime: "09:30 AM", estimatedTime: "1h" }
+            ],
+            "Vepery-Besant Nagar": [
+                { busNumber: "TN1047", route: ["Vepery", "Adyar", "Besant Nagar"], departureTime: "08:30 AM", estimatedTime: "35m" }
+            ],
+            "Royapuram-Manali": [
+                { busNumber: "TN1049", route: ["Royapuram", "Tondiarpet", "Manali"], departureTime: "10:00 AM", estimatedTime: "40m" }
+            ]
+        };
+
+        // Calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(coord1, coord2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (coord2[0] - coord1[0]) * Math.PI / 180;
+            const dLon = (coord2[1] - coord1[1]) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(coord1[0] * Math.PI / 180) * Math.cos(coord2[0] * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distance in km
+        }
+
+        // Calculate delay based on distance (heuristic: 1 minute delay per 5 km, with some randomness)
+        function calculateDelay(start, end) {
+            const distance = calculateDistance(points[start], points[end]);
+            const baseDelay = Math.floor(distance / 5); // 1 minute delay per 5 km
+            const randomDelay = Math.floor(Math.random() * 5); // Random delay between 0-4 minutes
+            return baseDelay + randomDelay;
+        }
+
+        // Populate late buses table dynamically
+        function populateLateBuses() {
+            const lateBusesTable = document.getElementById('late-buses-table');
+            lateBusesTable.innerHTML = '';
+
+            // Select a few buses to be late
+            const lateBusNumbers = ["TN1010", "TN1014", "TN1020", "TN1030", "TN1038"];
+            lateBusNumbers.forEach(busNumber => {
+                const bus = busData[busNumber];
+                const routeKey = bus.route;
+                const [start, end] = routeKey.split('-');
+                const delay = calculateDelay(start, end);
+                if (delay > 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${busNumber}</td>
+                        <td>${routeKey}</td>
+                        <td>${delay} mins</td>
+                    `;
+                    lateBusesTable.appendChild(row);
+                }
+            });
+        }
+
+        // Populate booking table dynamically
+        function populateBookingTable() {
+            const busTable = document.getElementById('bus-table');
+            busTable.innerHTML = '';
+
+            Object.keys(busData).forEach(busNumber => {
+                const bus = busData[busNumber];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${busNumber}</td>
+                    <td>${bus.route}</td>
+                    <td>${bus.departureTime}</td>
+                    <td id="seats-${busNumber}">${bus.seats}</td>
+                    <td>₹${bus.price}</td>
+                    <td>
+                        <div class="passenger-counter">
+                            <button onclick="decrementPassengers('${busNumber}')">-</button>
+                            <span id="passenger-count-${busNumber}">0</span>
+                            <button onclick="incrementPassengers('${busNumber}')">+</button>
+                        </div>
+                    </td>
+                    <td><button id="book-btn-${busNumber}" class="book-btn" onclick="goToPayment('${busNumber}', ${bus.price})">Book</button></td>
+                `;
+                busTable.appendChild(row);
+            });
+        }
+
+        // Populate dropdowns
+        const vehicleSelect = document.getElementById('vehicle-number');
+vehicleNumbers.forEach(vehicle => {
+    const option = document.createElement('option');
+    option.value = vehicle;
+    option.textContent = vehicle;
+    vehicleSelect.appendChild(option);
+});
+
+const pickupSelect = document.getElementById('pickup');
+const dropoffSelect = document.getElementById('dropoff');
+Object.keys(points).forEach(point => {
+    const pickupOption = document.createElement('option');
+    pickupOption.value = point;
+    pickupOption.textContent = point;
+    pickupSelect.appendChild(pickupOption);
+
+    const dropoffOption = document.createElement('option');
+    dropoffOption.value = point;
+    dropoffOption.textContent = point;
+    dropoffSelect.appendChild(dropoffOption);
+});
+
+        // Initialize the map (centered on Chennai: approximate center at Central Railway Station)
+        const map = L.map('map', {
+            minZoom: 12,
+            maxZoom: 16,
+            maxBounds: [
+                [12.5, 80.0],
+                [13.5, 80.5]
+            ],
+            maxBoundsViscosity: 1.0
+        }).setView([13.0821, 80.2751], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        let routeLayer = null;
+        let currentRouteKey = null;
+
+        function showRoute() {
+            const vehicle = document.getElementById('vehicle-number').value;
+            const pickup = document.getElementById('pickup').value;
+            const dropoff = document.getElementById('dropoff').value;
+
+            if (pickup === dropoff) {
+                alert("Pickup and drop-off locations cannot be the same.");
+                return;
+            }
+
+            const routeKey = `${pickup}-${dropoff}`;
+            currentRouteKey = routeKey;
+            const route = routes[routeKey];
+
+            if (!route) {
+                alert("No route available between the selected locations.");
+                return;
+            }
+
+            // Clear previous route
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+            }
+
+            // Get coordinates for the route
+            const routeCoords = route.map(city => points[city]);
+
+            // Add markers for start and end points
+            L.marker(routeCoords[0], { icon: L.icon({ iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] }) })
+                .addTo(map)
+                .bindPopup(`${pickup} (Start)`);
+            L.marker(routeCoords[routeCoords.length - 1], { icon: L.icon({ iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41] }) })
+                .addTo(map)
+                .bindPopup(`${dropoff} (End)`);
+
+            // Simulate a problem (e.g., construction) at an intermediate point
+            const problemPoint = routeCoords[Math.floor(routeCoords.length / 2)];
+            L.marker(problemPoint, { icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png', iconSize: [25, 41], iconAnchor: [12, 41] }) })
+                .addTo(map)
+                .bindPopup("Construction Zone");
+
+            // Draw the route
+            routeLayer = L.polyline(routeCoords, { color: 'blue' }).addTo(map);
+
+            // Fit the map to the route and zoom in to street level
+            map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+            map.setZoom(14);
+
+            // Update route information
+            const routeText = `Vehicle: ${vehicle}<br>Route: ${route.join(' → ')}`;
+            document.getElementById('route-text').innerHTML = routeText;
+
+            // Add alert for delay
+            document.getElementById('alert-text').textContent = "Alert: Construction in progress. Travel time may be delayed by 5 minutes.";
+
+            // Hide alternative buses
+            document.getElementById('alternative-buses').style.display = 'none';
+        }
+
+        function showAlternativeBuses() {
+            if (!currentRouteKey) {
+                alert("Please search for a route first.");
+                return;
+            }
+
+            const alternativeBusList = document.getElementById('alternative-bus-list');
+            alternativeBusList.innerHTML = '';
+
+            const buses = alternativeBuses[currentRouteKey] || [];
+            if (buses.length === 0) {
+                alternativeBusList.innerHTML = '<li>No alternative buses available.</li>';
+            } else {
+                buses.forEach(bus => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `Bus: ${bus.busNumber}<br>Route: ${bus.route.join(' → ')}<br>Departure: ${bus.departureTime}<br>Estimated Time: ${bus.estimatedTime}`;
+                    alternativeBusList.appendChild(li);
+                });
+            }
+
+            document.getElementById('alternative-buses').style.display = 'block';
+        }
+
+        // Initialize Active Users Chart
+        const ctx = document.getElementById('active-users-chart').getContext('2d');
+        const activeUsersChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['6:00 AM', '8:00 AM', '10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM', '6:00 PM'],
+                datasets: [{
+                    label: 'Active Users',
+                    data: [50, 120, 200, 180, 150, 220, 300],
+                    borderColor: '#0066cc',
+                    backgroundColor: 'rgba(0, 102, 204, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Active Users'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Feedback Section JavaScript
+        // Data storage
+        let feedbackData = {
+            positive: { Jan: 0, Feb: 0, Mar: 0, Apr: 0 },
+            neutral: { Jan: 0, Feb: 0, Mar: 0, Apr: 0 },
+            negative: { Jan: 0, Feb: 0, Mar: 0, Apr: 0 }
+        };
+        let rating = 0;
+
+        // Chart Instances
+        let pieChart;
+        let monthlyChart;
+
+        // Initialize Pie Chart
+        function initPieChart() {
+            const ctxPie = document.getElementById('pieFeedbackChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Positive', 'Neutral', 'Negative'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#2a9d8f', '#f4a261', '#e63946']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize Line Chart
+        function initLineChart() {
+            const ctxLine = document.getElementById('monthlyFeedbackChart').getContext('2d');
+            monthlyChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                    datasets: [
+                        { label: 'Positive', data: [0, 0, 0, 0], borderColor: '#2a9d8f', fill: false },
+                        { label: 'Neutral', data: [0, 0, 0, 0], borderColor: '#f4a261', fill: false },
+                        { label: 'Negative', data: [0, 0, 0, 0], borderColor: '#e63946', fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5
+                        }
+                    }
+                }
+            });
+        }
+
+        // Star Rating Functionality
+        function setupStarRating() {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    rating = parseInt(star.getAttribute('data-value'));
+                    updateStars();
+                });
+            });
+        }
+
+        function updateStars() {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                const value = parseInt(star.getAttribute('data-value'));
+                if (value <= rating) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
+                }
+            });
+        }
+
+        // Submit Feedback
+        function setupFeedbackSubmission() {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    const feedback = document.getElementById('feedbackInput').value.trim();
+
+                    if (!feedback || rating === 0) return;
+
+                    const sentiment = analyzeSentiment(feedback, rating);
+                    const month = new Date().toLocaleString('default', { month: 'short' });
+
+                    // Update feedback data
+                    feedbackData[sentiment][month]++;
+
+                    // Show thanks message
+                    const thanksMessage = document.getElementById('thanksMessage');
+                    thanksMessage.style.display = 'block';
+                    setTimeout(() => {
+                        thanksMessage.style.display = 'none';
+                    }, 3000);
+
+                    // Clear input and reset stars
+                    document.getElementById('feedbackInput').value = '';
+                    rating = 0;
+                    updateStars();
+
+                    // Update charts
+                    updatePieChart();
+                    updateLineChart();
+                });
+            }
+        }
+
+        // Sentiment Analysis Function
+        function analyzeSentiment(text, rating) {
+            text = text.toLowerCase();
+            const positiveWords = ['good', 'excellent', 'great', 'awesome', 'fantastic', 'amazing', 'positive'];
+            const negativeWords = ['bad', 'poor', 'terrible', 'awful', 'horrible', 'negative', 'not good', 'not accurate', 'wasn\'t accurate', 'inaccurate'];
+            const neutralWords = ['okay', 'not that bad', 'can improve', 'could be better', 'neutral', 'average'];
+
+            if (rating >= 4 || positiveWords.some(word => text.includes(word))) return 'positive';
+            if (rating <= 2 || negativeWords.some(word => text.includes(word))) return 'negative';
+            if (rating === 3 || neutralWords.some(word => text.includes(word))) return 'neutral';
+
+            if (rating >= 4) return 'positive';
+            if (rating <= 2) return 'negative';
+            return 'neutral';
+        }
+
+        // Update Pie Chart
+        function updatePieChart() {
+            const totalPositive = Object.values(feedbackData.positive).reduce((a, b) => a + b, 0);
+            const totalNeutral = Object.values(feedbackData.neutral).reduce((a, b) => a + b, 0);
+            const totalNegative = Object.values(feedbackData.negative).reduce((a, b) => a + b, 0);
+            pieChart.data.datasets[0].data = [totalPositive, totalNeutral, totalNegative];
+            pieChart.update();
+        }
+
+        // Update Line Chart
+        function updateLineChart() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr'];
+            monthlyChart.data.datasets[0].data = months.map(m => feedbackData.positive[m] || 0);
+            monthlyChart.data.datasets[1].data = months.map(m => feedbackData.neutral[m] || 0);
+            monthlyChart.data.datasets[2].data = months.map(m => feedbackData.negative[m] || 0);
+            monthlyChart.update();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            populateBookingTable();
+            populateLateBuses();
+            showSection('route-map');
+
+            // Initialize feedback charts and functionality when the feedback section is loaded
+            if (document.getElementById('feedback')) {
+                initPieChart();
+                initLineChart();
+                setupStarRating();
+                setupFeedbackSubmission();
+                updatePieChart();
+                updateLineChart();
+            }
+        });
+    </script>
+</body>
+</html>

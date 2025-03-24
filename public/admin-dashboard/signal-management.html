@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TrafficIQ</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
+        /* Existing styles remain unchanged */
+        .penalty-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .penalty-container input, 
+        .penalty-container select, 
+        .penalty-container button {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .penalty-container input, 
+        .penalty-container select {
+            width: 200px;
+        }
+        .penalty-container button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            padding: 10px 20px;
+        }
+        .penalty-container button:hover {
+            background: var(--primary-dark);
+        }
+        #penaltyMessage {
+            background-color: var(--status-green);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            margin-top: 10px;
+            max-width: 80%;
+            justify-content: center;
+            font-size: 14px;
+        }
+        #penaltyMessage.success {
+            display: inline-flex;
+        }
+        #penaltyMessage.success::before {
+            content: "✔";
+            font-size: 16px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--sidebar-border);
+            text-align: left;
+        }
+        th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        td {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+        tr:hover {
+            background: var(--sidebar-hover);
+        }
+        .road-type-graph-container {
+            margin-top: 2rem;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .road-type-graph-container h3 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .road-type-graph {
+            margin-top: 1.5rem;
+        }
+        canvas {
+            max-width: 100%;
+            height: 300px !important;
+        }
+        @media (max-width: 768px) {
+            .penalty-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .penalty-container input,
+            .penalty-container select,
+            .penalty-container button {
+                width: 100%;
+            }
+            canvas {
+                height: 200px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (unchanged) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+                <span class="admin-badge">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="admin-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="system-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <span>System Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="user-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span>Parking Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="camera-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                            <span>Bus Scheduling</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="signal-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Penalty System</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="penalty-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                            <span>School Zone speed</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>
+                            <span>Reports & Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar admin">AD</div>
+                    <div class="user-info">
+                        <h4>Admin User</h4>
+                        <p>System Administrator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+                </div>
+                <h2>Penalty System</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                        <span class="badge">5</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Issue Penalty Section (unchanged) -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Issue Penalty</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="penalty-container">
+                                <input type="text" id="vehicleNumber" placeholder="Vehicle Number" />
+                                <input type="number" id="speed" placeholder="Speed (km/h)" />
+                                <select id="roadType">
+                                    <option value="">Select Road Type</option>
+                                    <option value="City">City</option>
+                                    <option value="Highway">Highway</option>
+                                    <option value="Expressway">Expressway</option>
+                                </select>
+                                <button onclick="issuePenalty()">Issue Penalty</button>
+                            </div>
+                            <p id="penaltyMessage"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Violation Records Section (unchanged) -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Violation Records</h3>
+                            <div class="card-actions">
+                                <button class="refresh-btn" onclick="loadViolationData()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Vehicle Number</th>
+                                        <th>Owner Name</th>
+                                        <th>Speed</th>
+                                        <th>Road Type</th>
+                                        <th>Penalty Amount</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="violationTable">
+                                    <tr><td colspan="6">Loading violations...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Road Type Violations Line Chart -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Violations by Road Type</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="road-type-graph-container">
+                                <div class="road-type-graph">
+                                    <canvas id="roadTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Type Violations Line Chart -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Violations by Vehicle Type</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="road-type-graph-container">
+                                <div class="road-type-graph">
+                                    <canvas id="vehicleTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Year Violations Line Chart -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Violations by Registration Year</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="road-type-graph-container">
+                                <div class="road-type-graph">
+                                    <canvas id="registrationYearChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mocked data since API endpoints are not working
+        const publicData = [
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a53" },
+                "car_owner_name": "John Doe",
+                "vehicle_number": "AB123CD",
+                "phone_number": "9876543210",
+                "address": "123 Main St, New York, NY",
+                "email": "johndoe@example.com",
+                "vehicle_type": "Sedan",
+                "vehicle_model": "Toyota Camry",
+                "registration_year": 2018,
+                "license_number": "NYD123456",
+                "penalty_count": 2
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a54" },
+                "car_owner_name": "Jane Smith",
+                "vehicle_number": "EF456GH",
+                "phone_number": "8765432109",
+                "address": "456 Elm St, Los Angeles, CA",
+                "email": "janesmith@example.com",
+                "vehicle_type": "SUV",
+                "vehicle_model": "Honda CR-V",
+                "registration_year": 2020,
+                "license_number": "CAD789012",
+                "penalty_count": 1
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a55" },
+                "car_owner_name": "Alice Johnson",
+                "vehicle_number": "IJ789KL",
+                "phone_number": "7654321098",
+                "address": "789 Pine St, Chicago, IL",
+                "email": "alicejohnson@example.com",
+                "vehicle_type": "Hatchback",
+                "vehicle_model": "Volkswagen Golf",
+                "registration_year": 2019,
+                "license_number": "ILD345678",
+                "penalty_count": 3
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a56" },
+                "car_owner_name": "Bob Williams",
+                "vehicle_number": "MN012OP",
+                "phone_number": "6543210987",
+                "address": "321 Oak St, Houston, TX",
+                "email": "bobwilliams@example.com",
+                "vehicle_type": "Truck",
+                "vehicle_model": "Ford F-150",
+                "registration_year": 2017,
+                "license_number": "TXF901234",
+                "penalty_count": 0
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a57" },
+                "car_owner_name": "Charlie Brown",
+                "vehicle_number": "QR345ST",
+                "phone_number": "5432109876",
+                "address": "654 Birch St, Phoenix, AZ",
+                "email": "charliebrown@example.com",
+                "vehicle_type": "Convertible",
+                "vehicle_model": "Mazda MX-5",
+                "registration_year": 2021,
+                "license_number": "AZM567890",
+                "penalty_count": 2
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a58" },
+                "car_owner_name": "David Miller",
+                "vehicle_number": "UV678WX",
+                "phone_number": "4321098765",
+                "address": "987 Cedar St, Philadelphia, PA",
+                "email": "davidmiller@example.com",
+                "vehicle_type": "Coupe",
+                "vehicle_model": "BMW M4",
+                "registration_year": 2016,
+                "license_number": "PAB789456",
+                "penalty_count": 4
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a59" },
+                "car_owner_name": "Emma Davis",
+                "vehicle_number": "YZ901AB",
+                "phone_number": "3210987654",
+                "address": "159 Maple St, San Diego, CA",
+                "email": "emmadavis@example.com",
+                "vehicle_type": "Sedan",
+                "vehicle_model": "Hyundai Sonata",
+                "registration_year": 2018,
+                "license_number": "CAS567123",
+                "penalty_count": 1
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a5a" },
+                "car_owner_name": "Frank White",
+                "vehicle_number": "CD234EF",
+                "phone_number": "2109876543",
+                "address": "753 Walnut St, Dallas, TX",
+                "email": "frankwhite@example.com",
+                "vehicle_type": "Minivan",
+                "vehicle_model": "Toyota Sienna",
+                "registration_year": 2015,
+                "license_number": "TXM890234",
+                "penalty_count": 0
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a5b" },
+                "car_owner_name": "Grace Hall",
+                "vehicle_number": "GH567IJ",
+                "phone_number": "1098765432",
+                "address": "852 Spruce St, Seattle, WA",
+                "email": "gracehall@example.com",
+                "vehicle_type": "Hatchback",
+                "vehicle_model": "Ford Fiesta",
+                "registration_year": 2020,
+                "license_number": "WAF234678",
+                "penalty_count": 2
+            },
+            {
+                "_id": { "$oid": "67dd38e1521d41ed7a023a5c" },
+                "car_owner_name": "Henry Scott",
+                "vehicle_number": "KL890MN",
+                "phone_number": "0987654321",
+                "address": "369 Chestnut St, Miami, FL",
+                "email": "henryscott@example.com",
+                "vehicle_type": "Sedan",
+                "vehicle_model": "Chevrolet Malibu",
+                "registration_year": 2017,
+                "license_number": "FLD678901",
+                "penalty_count": 1
+            }
+        ];
+
+        // Mock violation data
+        let violationData = [
+            {
+                vehicle_number: "AB123CD",
+                car_owner_name: "John Doe",
+                speed: 70,
+                road_type: "City",
+                penalty_amount: 20,
+                timestamp: "2025-03-21T10:00:00Z"
+            },
+            {
+                vehicle_number: "EF456GH",
+                car_owner_name: "Jane Smith",
+                speed: 110,
+                road_type: "Highway",
+                penalty_amount: 100,
+                timestamp: "2025-03-20T15:30:00Z"
+            },
+            {
+                vehicle_number: "IJ789KL",
+                car_owner_name: "Alice Johnson",
+                speed: 220,
+                road_type: "Expressway",
+                penalty_amount: 200,
+                timestamp: "2025-03-19T09:15:00Z"
+            },
+            {
+                vehicle_number: "QR345ST",
+                car_owner_name: "Charlie Brown",
+                speed: 90,
+                road_type: "Highway",
+                penalty_amount: 50,
+                timestamp: "2025-03-18T12:45:00Z"
+            },
+            {
+                vehicle_number: "UV678WX",
+                car_owner_name: "David Miller",
+                speed: 150,
+                road_type: "Expressway",
+                penalty_amount: 100,
+                timestamp: "2025-03-17T14:20:00Z"
+            }
+        ];
+
+        // Mobile menu toggle (unchanged)
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Function to issue a penalty
+        async function issuePenalty() {
+            const vehicleNumber = document.getElementById('vehicleNumber').value.trim().toUpperCase();
+            const roadType = document.getElementById('roadType').value;
+            const speed = parseInt(document.getElementById('speed').value);
+            const penaltyMessage = document.getElementById('penaltyMessage');
+
+            if (!vehicleNumber || !roadType || isNaN(speed)) {
+                penaltyMessage.innerText = "Please enter all required details.";
+                penaltyMessage.classList.remove('success');
+                penaltyMessage.style.display = 'inline-flex';
+                return;
+            }
+
+            console.log(`Issuing penalty for Vehicle: ${vehicleNumber}, Speed: ${speed}, Road Type: ${roadType}`);
+
+            let penaltyAmount = 0;
+            if (roadType === "City") {
+                if (speed > 50 && speed <= 60) penaltyAmount = 10;
+                else if (speed > 60) penaltyAmount = 20;
+            } else if (roadType === "Highway") {
+                if (speed > 80 && speed <= 100) penaltyAmount = 50;
+                else if (speed > 100) penaltyAmount = 100;
+            } else if (roadType === "Expressway") {
+                if (speed > 100 && speed <= 200) penaltyAmount = 100;
+                else if (speed > 200) penaltyAmount = 200;
+            }
+
+            if (penaltyAmount === 0) {
+                penaltyMessage.innerText = "Speed is within the limit. No penalty issued.";
+                penaltyMessage.classList.remove('success');
+                penaltyMessage.style.display = 'inline-flex';
+                return;
+            }
+
+            try {
+                const vehicle = publicData.find(v => v.vehicle_number === vehicleNumber);
+                if (!vehicle) {
+                    throw new Error('Vehicle not found in public data');
+                }
+
+                const newViolation = {
+                    vehicle_number: vehicleNumber,
+                    car_owner_name: vehicle.car_owner_name,
+                    speed,
+                    road_type: roadType,
+                    penalty_amount: penaltyAmount,
+                    timestamp: new Date().toISOString()
+                };
+
+                violationData.push(newViolation);
+
+                penaltyMessage.innerText = `Penalty of ₹${penaltyAmount} issued to ${vehicleNumber}`;
+                penaltyMessage.classList.add('success');
+                penaltyMessage.style.display = 'inline-flex';
+                loadViolationData();
+                loadRoadTypeChart();
+                loadVehicleTypeChart();
+                loadRegistrationYearChart();
+            } catch (error) {
+                console.error("Error issuing penalty:", error.message);
+                penaltyMessage.innerText = error.message || "Error issuing penalty. Please try again.";
+                penaltyMessage.classList.remove('success');
+                penaltyMessage.style.display = 'inline-flex';
+            }
+        }
+
+        // Function to load violation data
+        function loadViolationData() {
+            const tableBody = document.getElementById("violationTable");
+            tableBody.innerHTML = "<tr><td colspan='6'>Loading violations...</td></tr>";
+
+            try {
+                if (violationData.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='6'>No violations found.</td></tr>";
+                    return;
+                }
+
+                tableBody.innerHTML = "";
+                violationData.forEach(violation => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${violation.vehicle_number}</td>
+                        <td>${violation.car_owner_name}</td>
+                        <td>${violation.speed} km/h</td>
+                        <td>${violation.road_type}</td>
+                        <td>₹${violation.penalty_amount}</td>
+                        <td>${new Date(violation.timestamp).toLocaleString()}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error fetching violations:", error);
+                tableBody.innerHTML = "<tr><td colspan='6'>Error loading violations.</td></tr>";
+            }
+        }
+
+        // Function to load road type chart (now a line chart)
+        function loadRoadTypeChart() {
+            try {
+                const roadTypeCounts = {};
+                violationData.forEach(violation => {
+                    const roadType = violation.road_type || "Unknown";
+                    roadTypeCounts[roadType] = (roadTypeCounts[roadType] || 0) + 1;
+                });
+
+                const labels = Object.keys(roadTypeCounts);
+                const data = Object.values(roadTypeCounts);
+
+                const ctx = document.getElementById('roadTypeChart').getContext('2d');
+                if (window.roadTypeChart instanceof Chart) {
+                    window.roadTypeChart.destroy();
+                }
+
+                window.roadTypeChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Violations',
+                            data: data,
+                            borderColor: '#0066cc',
+                            backgroundColor: 'rgba(0, 102, 204, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Violations'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Road Type'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error loading road type chart:", error.message);
+                const chartContainer = document.getElementById('roadTypeChart').parentElement;
+                chartContainer.innerHTML = `<p>Error loading chart: ${error.message}</p>`;
+            }
+        }
+
+        // Function to load vehicle type chart (now a line chart)
+        function loadVehicleTypeChart() {
+            try {
+                const vehicleTypeCounts = {};
+                violationData.forEach(violation => {
+                    const vehicle = publicData.find(v => v.vehicle_number === violation.vehicle_number);
+                    if (vehicle) {
+                        const vehicleType = vehicle.vehicle_type || "Unknown";
+                        vehicleTypeCounts[vehicleType] = (vehicleTypeCounts[vehicleType] || 0) + 1;
+                    }
+                });
+
+                const labels = Object.keys(vehicleTypeCounts);
+                const data = Object.values(vehicleTypeCounts);
+
+                const ctx = document.getElementById('vehicleTypeChart').getContext('2d');
+                if (window.vehicleTypeChart instanceof Chart) {
+                    window.vehicleTypeChart.destroy();
+                }
+
+                window.vehicleTypeChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Violations',
+                            data: data,
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Violations'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Vehicle Type'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error loading vehicle type chart:", error.message);
+                const chartContainer = document.getElementById('vehicleTypeChart').parentElement;
+                chartContainer.innerHTML = `<p>Error loading chart: ${error.message}</p>`;
+            }
+        }
+
+        // Function to load registration year chart (now a line chart)
+        function loadRegistrationYearChart() {
+            try {
+                const yearCounts = {};
+                violationData.forEach(violation => {
+                    const vehicle = publicData.find(v => v.vehicle_number === violation.vehicle_number);
+                    if (vehicle) {
+                        const year = vehicle.registration_year || "Unknown";
+                        yearCounts[year] = (yearCounts[year] || 0) + 1;
+                    }
+                });
+
+                const labels = Object.keys(yearCounts).sort();
+                const data = labels.map(year => yearCounts[year]);
+
+                const ctx = document.getElementById('registrationYearChart').getContext('2d');
+                if (window.registrationYearChart instanceof Chart) {
+                    window.registrationYearChart.destroy();
+                }
+
+                window.registrationYearChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Violations',
+                            data: data,
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Violations'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Registration Year'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error loading registration year chart:", error.message);
+                const chartContainer = document.getElementById('registrationYearChart').parentElement;
+                chartContainer.innerHTML = `<p>Error loading chart: ${error.message}</p>`;
+            }
+        }
+
+        // Load all data and charts on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadViolationData();
+            loadRoadTypeChart();
+            loadVehicleTypeChart();
+            loadRegistrationYearChart();
+        });
+    </script>
+</body>
+</html>

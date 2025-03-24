@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carpool Parking Program</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<style>
+    :root {
+        --primary-color: #0066cc;
+        --primary-dark: #0052a3;
+        --primary-light: #e6f0ff;
+        --text-color: #333333;
+        --text-light: #666666;
+        --background-color: #ffffff;
+        --background-alt: #f8f9fa;
+        --border-color: #e0e0e0;
+        --success-color: #28a745;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+        --sidebar-width: 260px;
+        --header-height: 70px;
+        --sidebar-bg: #f8f9fa;
+        --sidebar-hover: #e9ecef;
+        --sidebar-active: #e6f0ff;
+        --sidebar-border: #e0e0e0;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--background-color);
+    }
+
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f5f7fa;
+    }
+
+    /* TrafficIQ User Dashboard Sidebar Styles */
+    .sidebar {
+        width: var(--sidebar-width);
+        background-color: white;
+        border-right: 1px solid var(--sidebar-border);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+        transition: transform 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--sidebar-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 0;
+    }
+
+    .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 0;
+    }
+
+    .sidebar-nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-nav li {
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-radius: 6px;
+        margin: 0 10px;
+        font-weight: 500;
+        width: calc(100% - 20px);
+    }
+
+    .sidebar-nav a:hover {
+        background-color: var(--sidebar-hover);
+    }
+
+    .sidebar-nav li.active a {
+        background-color: var(--sidebar-active);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .sidebar-nav .icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        color: currentColor;
+        flex-shrink: 0;
+    }
+
+    .sidebar-nav span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid var(--sidebar-border);
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        text-decoration: none;
+        color: var(--text-color);
+    }
+
+    .user-profile:hover {
+        background-color: var(--sidebar-hover);
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-info h4 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .user-info p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-light);
+    }
+
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 6px;
+        color: #dc3545;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .logout-btn:hover {
+        background-color: #ffebee;
+        color: #dc3545;
+    }
+
+    .logout-btn .icon {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+        flex: 1;
+        margin-left: var(--sidebar-width);
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .hero {
+        background: linear-gradient(to bottom, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 6rem 0 4rem;
+    }
+
+    .hero-content {
+        max-width: 600px;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+        font-size: 1rem;
+    }
+
+    .primary-btn {
+        background-color: white;
+        color: var(--primary-color);
+    }
+
+    .primary-btn:hover {
+        background-color: var(--primary-light);
+        transform: translateY(-2px);
+    }
+
+    .secondary-btn {
+        background-color: transparent;
+        border: 2px solid white;
+        color: white;
+    }
+
+    .secondary-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .map-section {
+        padding: 4rem 0;
+        background-color: var(--background-alt);
+    }
+
+    .map-container {
+        background-color: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        margin-top: 2rem;
+    }
+
+    #parkingMap {
+        height: 500px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .dashboard-section {
+        padding: 4rem 0;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .chart-card {
+        background-color: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+    }
+
+    .chart-card h3 {
+        margin-bottom: 1.5rem;
+        color: var(--text-color);
+    }
+
+    .testimonials {
+        padding: 4rem 0;
+        background-color: var(--background-alt);
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .testimonial-card {
+        background-color: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+    }
+
+    .testimonial-card p {
+        margin-bottom: 1.5rem;
+        color: var(--text-color);
+        font-style: italic;
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+    }
+
+    .author-avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 1rem;
+    }
+
+    .author-info h4 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .author-info p {
+        color: var(--text-light);
+        margin: 0;
+        font-style: normal;
+        font-size: 0.875rem;
+    }
+
+    .contact-section {
+        padding: 4rem 0;
+        background: linear-gradient(135deg, var(--primary-light) 0%, #ffffff 100%);
+    }
+
+    .contact-section h2 {
+        color: var(--primary-dark);
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .contact-section p {
+        text-align: center;
+        color: var(--text-light);
+        max-width: 600px;
+        margin: 0 auto 2rem;
+        font-size: 1.1rem;
+    }
+
+    .contact-form {
+        max-width: 600px;
+        margin: 2rem auto 0;
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 0.75rem;
+        font-family: inherit;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: var(--background-alt);
+    }
+
+    .form-group input:hover,
+    .form-group textarea:hover {
+        border-color: var(--primary-light);
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px var(--primary-light);
+        background-color: white;
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .contact-form .primary-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .contact-form .primary-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 102, 204, 0.3);
+    }
+
+    .contact-form .primary-btn:active {
+        transform: translateY(0);
+    }
+
+    section h2 {
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .contact-form {
+            padding: 2rem;
+            margin: 2rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 0 1rem;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+        }
+
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-form {
+            padding: 1.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 0.875rem;
+        }
+    }
+</style>
+<body>
+    <div class="dashboard-container">
+        <!-- TrafficIQ User Dashboard Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="user-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="speed-violation.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
+                            <span>Road Speed Limit Finder(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="traffic-signal.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Traffic Signal</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="parking-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path></svg>
+                            <span>Parking Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="public-transport.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M8 6v6"></path><path d="m8 16 4 4"></path><path d="m16 10 4-4"></path><circle cx="16" cy="16" r="6"></circle></svg>
+                            <span>Public Transport</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="predictive-traffic.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 12h10"></path><path d="M9 4v16"></path><path d="m3 9 3 3-3 3"></path><path d="M14 8h8"></path><path d="M18 4v16"></path><path d="m22 12-3 3-3-3"></path></svg>
+                            <span>Citizen Traffic Watch(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dynamic-route-adjustment.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path><path d="M12 3v6"></path></svg>
+                            <span>Route Adjustment</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar">JD</div>
+                    <div class="user-info">
+                        <h4>John Doe</h4>
+                        <p>Traffic Operator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <h1>Save on Parking, Reduce Emissions</h1>
+                        <p>Join our carpool parking incentive program and contribute to a greener future while enjoying exclusive parking benefits and reduced costs.</p>
+                        <div class="cta-buttons">
+                            <button class="btn primary-btn">Find Carpool Zones</button>
+                            <button class="btn secondary-btn">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interactive Map Section -->
+            <section id="map" class="map-section">
+                <div class="container">
+                    <h2>Available Carpool Zones</h2>
+                    <div class="map-container">
+                        <div id="parkingMap"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Dashboard -->
+            <section id="dashboard" class="dashboard-section">
+                <div class="container">
+                    <h2>Impact Analysis</h2>
+                    <div class="dashboard-grid">
+                        <div class="chart-card">
+                            <h3>Emissions Reduction</h3>
+                            <canvas id="emissionsChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Zone Occupancy</h3>
+                            <canvas id="occupancyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section class="testimonials">
+                <div class="container">
+                    <h2>User Testimonials</h2>
+                    <div class="testimonials-grid">
+                        <div class="testimonial-card">
+                            <p>"The carpool program has saved me hundreds on parking costs and helped me meet great people!"</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">SJ</div>
+                                <div class="author-info">
+                                    <h4>Sarah Johnson</h4>
+                                    <p>Daily Commuter</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <p>"The real-time availability feature is a game-changer. I always know where to find parking."</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">MC</div>
+                                <div class="author-info">
+                                    <h4>Mike Chen</h4>
+                                    <p>Tech Professional</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <p>"It's amazing to see the direct impact we're having on reducing emissions through carpooling."</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">ER</div>
+                                <div class="author-info">
+                                    <h4>Emily Rodriguez</h4>
+                                    <p>Environmental Advocate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="contact-section">
+                <div class="container">
+                    <h2>Get Started Today</h2>
+                    <p>Join our community of eco-conscious commuters and start saving on parking costs</p>
+                    <form id="contactForm" class="contact-form">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" rows="4" required placeholder="Tell us about your commuting needs"></textarea>
+                        </div>
+                        <button type="submit" class="btn primary-btn">Submit Request</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        // Initialize the map
+        const map = L.map('parkingMap').setView([40.7128, -74.0060], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        const carpoolZones = [
+            { id: 1, name: 'Downtown Hub', position: [40.7128, -74.0060], spots: 50, available: 15 },
+            { id: 2, name: 'Tech District', position: [40.7589, -73.9851], spots: 30, available: 8 },
+            { id: 3, name: 'University Area', position: [40.7294, -73.9965], spots: 40, available: 22 }
+        ];
+
+        carpoolZones.forEach(zone => {
+            const marker = L.marker(zone.position).addTo(map);
+            marker.bindPopup(`
+                <div style="padding: 0.5rem">
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem">${zone.name}</h3>
+                    <p style="margin: 0">Total spots: ${zone.spots}</p>
+                    <p style="margin: 0; color: #28a745">Available: ${zone.available}</p>
+                </div>
+            `);
+        });
+
+        const emissionsCtx = document.getElementById('emissionsChart').getContext('2d');
+        const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
+
+        new Chart(emissionsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'CO2 Emissions Reduced (tons)',
+                    data: [12, 19, 15, 25, 22, 30],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: false }
+                },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        new Chart(occupancyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                datasets: [{
+                    label: 'Parking Zone Occupancy (%)',
+                    data: [65, 80, 75, 85, 70],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: false }
+                },
+                scales: { y: { beginAtZero: true, max: 100 } }
+            }
+        });
+
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            console.log('Form submitted:', { email, message });
+            this.reset();
+            alert('Thank you for your message. We will get back to you soon!');
+        });
+
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+                this.parentElement.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

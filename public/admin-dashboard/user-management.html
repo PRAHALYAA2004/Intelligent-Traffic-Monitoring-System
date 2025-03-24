@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TrafficIQ</title>
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add heatmap.js -->
+    <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
+    <!-- Add Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --sidebar-bg: #f8f9fa;
+            --sidebar-hover: #e9ecef;
+            --sidebar-active: #dee2e6;
+            --sidebar-border: #ced4da;
+            --text-color: #212529;
+            --text-light: #6c757d;
+            --background-color: #f8f9fa;
+            --background-alt: #e9ecef;
+            --border-color: #dee2e6;
+            --primary-color: #0066cc;
+            --secondary-color: #6c757d;
+            --status-green: #28a745;
+            --status-yellow: #ffc107;
+            --status-red: #dc3545;
+            --alert-success: #28a745;
+            --alert-warning: #ffc107;
+            --alert-critical: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            --sidebar-bg: #1a1a1a;
+            --sidebar-hover: #2c2c2c;
+            --sidebar-active: #333333;
+            --sidebar-border: #444444;
+            --text-color: #f0f0f0;
+            --text-light: #cccccc;
+            --background-color: #121212;
+            --background-alt: #1e1e1e;
+            --border-color: #444444;
+            background-color: #121212;
+        }
+
+        body.dark-mode .sidebar,
+        body.dark-mode .dashboard-header,
+        body.dark-mode .dashboard-card,
+        body.dark-mode .stat-card {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .sidebar-border,
+        body.dark-mode .dashboard-header {
+            border-color: #444444;
+        }
+
+        body.dark-mode .search-bar input {
+            background-color: #2c2c2c;
+            border-color: #444444;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .theme-toggle i {
+            color: #f0f0f0;
+        }
+
+/* Sidebar Styles */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: white;
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.admin-badge {
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column; /* Ensure vertical layout */
+}
+
+.sidebar-nav li {
+    margin-bottom: 5px;
+    width: 100%; /* Ensure full width */
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    margin: 0 10px;
+    font-weight: 500;
+    width: calc(100% - 20px); /* Ensure proper width accounting for margin */
+}
+
+.sidebar-nav a:hover {
+    background-color: var(--sidebar-hover);
+}
+
+.sidebar-nav li.active a {
+    background-color: var(--sidebar-active);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.sidebar-nav .icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    color: currentColor;
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.sidebar-nav span {
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--sidebar-border);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.user-profile:hover {
+    background-color: var(--sidebar-hover);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 12px;
+    flex-shrink: 0; /* Prevent avatar from shrinking */
+}
+
+.avatar.admin {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-info h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.user-info p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 6px;
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.logout-btn:hover {
+    background-color: #ffebee;
+    color: #dc3545;
+}
+
+.logout-btn .icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: flex;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 1rem;
+            background-color: var(--background-color);
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 1rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .search-bar input {
+            border: none;
+            padding: 0.5rem 1rem;
+            outline: none;
+            width: 250px;
+        }
+
+        .search-bar button {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-btn .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--alert-critical);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        .stat-icon.blue {
+            background-color: var(--primary-color);
+        }
+
+        .stat-icon.green {
+            background-color: var(--status-green);
+        }
+
+        .stat-icon.orange {
+            background-color: var(--status-yellow);
+        }
+
+        .stat-icon.purple {
+            background-color: #6f42c1;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-change.positive {
+            color: var(--status-green);
+        }
+
+        .stat-change.negative {
+            color: var(--alert-critical);
+        }
+
+        /* Dashboard Cards */
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-card.large {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 250px;
+        }
+
+        /* Blinking Animation for Critical Status - MODIFIED */
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-critical {
+            animation: blink 1.5s infinite;
+            background-color: var(--alert-critical);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            /* Reduced size of the blinking effect */
+            width: auto;
+            height: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .status-critical::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: blink 1.5s infinite;
+        }
+
+        .status-warning {
+            background-color: var(--alert-warning);
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            
+        }
+
+        .status-ok {
+            background-color: var(--alert-success);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            
+        }
+
+        /* Flagged Vehicles Table */
+        .flagged-vehicles-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .flagged-vehicles-table th,
+        .flagged-vehicles-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .flagged-vehicles-table th {
+            background-color: var(--background-alt);
+            font-weight: 600;
+        }
+
+        .flagged-vehicles-table tr:hover {
+            background-color: var(--background-alt);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .resolve-btn {
+            background-color: var(--status-green);
+            color: white;
+        }
+
+        .fine-btn {
+            background-color: var(--alert-critical);
+            color: white;
+        }
+
+        .notify-btn {
+            background-color: var(--alert-warning);
+            color: #856404;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Recommendations List */
+        .recommendations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .recommendation-item {
+            background-color: var(--background-alt);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .recommendation-item h4 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+        }
+
+        .recommendation-item p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Reports List */
+        .reports-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .reports-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reports-list li:last-child {
+            border-bottom: none;
+        }
+
+        .report-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+        }
+
+        .report-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .report-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Animation for refresh button */
+        .refresh-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background-color: var(--background-alt);
+        }
+
+        .refresh-btn.refreshing i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .view-all {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .view-all:hover {
+            text-decoration: underline;
+        }
+
+        select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        body.dark-mode select {
+            background-color: var(--sidebar-bg);
+            color: var(--text-color);
+            border-color: var(--sidebar-border);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+                <span class="admin-badge">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="admin-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="system-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <span>System Management</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="user-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span>Parking Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="camera-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                            <span>Bus Scheduling</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="signal-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Penalty System</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="penalty-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                            <span>School Zone speed</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>
+                            <span>Reports & Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar admin">AD</div>
+                    <div class="user-info">
+                        <h4>Admin User</h4>
+                        <p>System Administrator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+
+        <div class="main-content">
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i data-lucide="menu" class="icon"></i>
+                    </button>
+                    <h2>Parking Dashboard</h2>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search by License Plate, User ID...">
+                        <button>
+                            <i data-lucide="search" class="icon"></i>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <i data-lucide="bell" class="icon"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="theme-toggle" id="themeToggle">
+                        <i data-lucide="moon" class="icon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i data-lucide="car" class="icon"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Vehicles</h3>
+                            <div class="stat-value">1,248</div>
+                            <p class="stat-change positive">+12% from last week</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i data-lucide="check-circle" class="icon"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Available Spaces</h3>
+                            <div class="stat-value">342</div>
+                            <p class="stat-change negative">-8% from last week</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i data-lucide="alert-triangle" class="icon"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Overstayed Vehicles</h3>
+                            <div class="stat-value">24</div>
+                            <p class="stat-change negative">+15% from last week</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i data-lucide="dollar-sign" class="icon"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Revenue Today</h3>
+                            <div class="stat-value">$4,285</div>
+                            <p class="stat-change positive">+5% from yesterday</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parking Demand & Usage Analytics -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Parking Demand & Usage Analytics</h3>
+                            <div class="card-actions">
+                                <select id="timeRangeSelect">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly" selected>Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                                <button class="refresh-btn" id="refreshCharts">
+                                    <i data-lucide="refresh-cw" class="icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="usageChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- High Demand Locations & Trends -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>High Demand Locations</h3>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="locationChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Overstay Trends</h3>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="overstayChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heatmap & Optimization -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Parking Demand Heatmap</h3>
+                            <div class="card-actions">
+                                <select id="heatmapLocationSelect">
+                                    <option value="all">All Locations</option>
+                                    <option value="downtown">Downtown</option>
+                                    <option value="uptown">Uptown</option>
+                                    <option value="midtown">Midtown</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div id="heatmapContainer" class="chart-container"></div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Parking Utilization</h3>
+                            <a href="#" class="view-all">View Details</a>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="utilizationChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flagged Vehicles Section -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Flagged Vehicles</h3>
+                            <div class="card-actions">
+                                <select id="flaggedVehiclesFilter">
+                                    <option value="all">All Statuses</option>
+                                    <option value="critical">Critical</option>
+                                    <option value="warning">Warning</option>
+                                    <option value="ok">OK</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <table class="flagged-vehicles-table" id="flaggedVehiclesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>License Plate</th>
+                                        <th>Location</th>
+                                        <th>Address</th>
+                                        <th>Overstayed Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations & Insights -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>AI Recommendations</h3>
+                            <button class="refresh-btn" id="refreshRecommendations">
+                                <i data-lucide="refresh-cw" class="icon"></i>
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <div class="recommendations-list" id="recommendationsList">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Recent Reports</h3>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="card-content">
+                            <ul class="reports-list" id="reportsList">
+                                <!-- Will be populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle Sidebar
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            // Toggle Dark Mode
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                themeIcon.setAttribute('name', 'sun');
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                body.classList.toggle('dark-mode');
+                
+                if (body.classList.contains('dark-mode')) {
+                    themeIcon.setAttribute('name', 'sun');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    themeIcon.setAttribute('name', 'moon');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+
+            // Search Functionality
+            const searchInput = document.getElementById('searchInput');
+            const flaggedVehiclesTable = document.getElementById('flaggedVehiclesTable');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = flaggedVehiclesTable.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Sample Data for Flagged Vehicles
+            const flaggedVehicles = [
+                {
+                    id: 1,
+                    driver: 'John Smith',
+                    licensePlate: 'ABC-1234',
+                    location: 'Downtown Lot A',
+                    address: '123 Main St, Downtown',
+                    overstayedTime: 45,
+                    status: 'critical'
+                },
+                {
+                    id: 2,
+                    driver: 'Sarah Johnson',
+                    licensePlate: 'XYZ-5678',
+                    location: 'Uptown Lot B',
+                    address: '456 Oak Ave, Uptown',
+                    overstayedTime: 25,
+                    status: 'warning'
+                },
+                {
+                    id: 3,
+                    driver: 'Michael Brown',
+                    licensePlate: 'DEF-9012',
+                    location: 'Midtown Lot C',
+                    address: '789 Pine St, Midtown',
+                    overstayedTime: 5,
+                    status: 'ok'
+                },
+                {
+                    id: 4,
+                    driver: 'Emily Davis',
+                    licensePlate: 'GHI-3456',
+                    location: 'Downtown Lot A',
+                    address: '321 Elm St, Downtown',
+                    overstayedTime: 60,
+                    status: 'critical'
+                },
+                {
+                    id: 5,
+                    driver: 'Robert Wilson',
+                    licensePlate: 'JKL-7890',
+                    location: 'Uptown Lot C',
+                    address: '654 Maple Dr, Uptown',
+                    overstayedTime: 30,
+                    status: 'warning'
+                }
+            ];
+
+            // Populate Flagged Vehicles Table
+            function populateFlaggedVehiclesTable(vehicles) {
+                const tableBody = flaggedVehiclesTable.querySelector('tbody');
+                tableBody.innerHTML = '';
+                
+                vehicles.forEach(vehicle => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${vehicle.driver}</td>
+                        <td>${vehicle.licensePlate}</td>
+                        <td>${vehicle.location}</td>
+                        <td>${vehicle.address}</td>
+                        <td>${vehicle.overstayedTime} minutes</td>
+                        <td><span class="status-${vehicle.status}">${getStatusText(vehicle.status)}</span></td>
+                        <td class="action-buttons">
+                            <button class="action-btn resolve-btn" data-id="${vehicle.id}">Resolve</button>
+                            <button class="action-btn fine-btn" data-id="${vehicle.id}">Fine</button>
+                            <button class="action-btn notify-btn" data-id="${vehicle.id}">Notify</button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Add event listeners to action buttons
+                document.querySelectorAll('.resolve-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const vehicleId = parseInt(this.getAttribute('data-id'));
+                        resolveVehicle(vehicleId);
+                    });
+                });
+                
+                document.querySelectorAll('.fine-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const vehicleId = parseInt(this.getAttribute('data-id'));
+                        fineVehicle(vehicleId);
+                    });
+                });
+                
+                document.querySelectorAll('.notify-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const vehicleId = parseInt(this.getAttribute('data-id'));
+                        notifyDriver(vehicleId);
+                    });
+                });
+            }
+
+            function getStatusText(status) {
+                switch(status) {
+                    case 'critical':
+                        return '🔴 Critical';
+                    case 'warning':
+                        return '🟠 Warning';
+                    case 'ok':
+                        return '🟢 OK';
+                    default:
+                        return status;
+                }
+            }
+
+            // Action Functions for Flagged Vehicles
+            function resolveVehicle(id) {
+                alert(`Vehicle ${id} has been marked as resolved.`);
+                // Remove the vehicle from the table
+                const index = flaggedVehicles.findIndex(v => v.id === id);
+                if (index !== -1) {
+                    flaggedVehicles.splice(index, 1);
+                    populateFlaggedVehiclesTable(flaggedVehicles);
+                }
+            }
+
+            function fineVehicle(id) {
+                alert(`A fine has been issued to vehicle ${id}.`);
+            }
+
+            function notifyDriver(id) {
+                alert(`The driver of vehicle ${id} has been notified.`);
+            }
+
+            // Filter Flagged Vehicles
+            const flaggedVehiclesFilter = document.getElementById('flaggedVehiclesFilter');
+            
+            flaggedVehiclesFilter.addEventListener('change', function() {
+                const filterValue = this.value;
+                
+                if (filterValue === 'all') {
+                    populateFlaggedVehiclesTable(flaggedVehicles);
+                } else {
+                    const filteredVehicles = flaggedVehicles.filter(vehicle => vehicle.status === filterValue);
+                    populateFlaggedVehiclesTable(filteredVehicles);
+                }
+            });
+
+            // Sample Data for AI Recommendations
+            const recommendations = [
+                {
+                    title: 'Dynamic Pricing Opportunity',
+                    description: 'Increase rates by 15% during peak hours (2-5 PM) in Downtown Lot A to optimize revenue and reduce congestion.'
+                },
+                {
+                    title: 'Underutilized Parking',
+                    description: 'Midtown Lot C is consistently below 40% capacity. Consider promotional rates or reallocation of resources.'
+                },
+                {
+                    title: 'Expansion Recommendation',
+                    description: 'High demand in Uptown Lot B suggests potential for expansion. Adjacent property may be available for acquisition.'
+                }
+            ];
+
+            // Populate Recommendations List
+            function populateRecommendationsList(recommendations) {
+                const recommendationsList = document.getElementById('recommendationsList');
+                recommendationsList.innerHTML = '';
+                
+                recommendations.forEach(recommendation => {
+                    const item = document.createElement('div');
+                    item.className = 'recommendation-item';
+                    
+                    item.innerHTML = `
+                        <h4>${recommendation.title}</h4>
+                        <p>${recommendation.description}</p>
+                    `;
+                    
+                    recommendationsList.appendChild(item);
+                });
+            }
+
+            // Sample Data for Reports
+            const reports = [
+                {
+                    title: 'Weekly Occupancy Report',
+                    description: 'Analysis of parking occupancy trends for the past week',
+                    date: '2023-06-15'
+                },
+                {
+                    title: 'Revenue Analysis',
+                    description: 'Detailed breakdown of revenue by location and time',
+                    date: '2023-06-14'
+                },
+                {
+                    title: 'Overstay Incidents',
+                    description: 'Summary of vehicles exceeding parking duration',
+                    date: '2023-06-13'
+                },
+                {
+                    title: 'Optimization Opportunities',
+                    description: 'AI-generated suggestions for parking optimization',
+                    date: '2023-06-12'
+                }
+            ];
+
+            // Populate Reports List
+            function populateReportsList(reports) {
+                const reportsList = document.getElementById('reportsList');
+                reportsList.innerHTML = '';
+                
+                reports.forEach(report => {
+                    const item = document.createElement('li');
+                    
+                    item.innerHTML = `
+                        <div class="report-info">
+                            <h4>${report.title}</h4>
+                            <p>${report.description}</p>
+                        </div>
+                        <span class="report-date">${formatDate(report.date)}</span>
+                    `;
+                    
+                    reportsList.appendChild(item);
+                });
+            }
+
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            // Initialize Charts
+            function initCharts() {
+                // Usage Chart (Bar and Line)
+                const usageCtx = document.getElementById('usageChart').getContext('2d');
+                const usageChart = new Chart(usageCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                        datasets: [
+                            {
+                                label: 'Parking Occupancy',
+                                data: [75, 82, 78, 85, 90, 65, 55],
+                                backgroundColor: '#0066cc',
+                                borderColor: '#0066cc',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Average Duration (hours)',
+                                data: [2.5, 2.8, 2.6, 3.1, 3.4, 4.2, 3.8],
+                                type: 'line',
+                                borderColor: '#28a745',
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                pointBackgroundColor: '#28a745',
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Occupancy (%)'
+                                },
+                                max: 100
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Duration (hours)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                },
+                                max: 5
+                            }
+                        }
+                    }
+                });
+
+                // Location Chart (Bar)
+                const locationCtx = document.getElementById('locationChart').getContext('2d');
+                const locationChart = new Chart(locationCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Downtown A', 'Downtown B', 'Uptown A', 'Uptown B', 'Midtown A', 'Midtown B'],
+                        datasets: [{
+                            label: 'Average Occupancy (%)',
+                            data: [92, 85, 78, 65, 45, 35],
+                            backgroundColor: [
+                                '#dc3545', // Red for highest demand
+                                '#fd7e14', // Orange
+                                '#ffc107', // Yellow
+                                '#28a745', // Green
+                                '#0066cc', // Blue
+                                '#6f42c1'  // Purple
+                            ],
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Occupancy (%)'
+                                },
+                                max: 100
+                            }
+                        }
+                    }
+                });
+
+                // Overstay Chart (Line)
+                const overstayCtx = document.getElementById('overstayChart').getContext('2d');
+                const overstayChart = new Chart(overstayCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['8:00 AM', '10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM', '6:00 PM', '8:00 PM'],
+                        datasets: [{
+                            label: 'Overstayed Vehicles',
+                            data: [5, 8, 15, 24, 18, 12, 7],
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Vehicles'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Utilization Chart (Pie)
+                const utilizationCtx = document.getElementById('utilizationChart').getContext('2d');
+                const utilizationChart = new Chart(utilizationCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Overused (>80%)', 'Optimal (40-80%)', 'Underused (<40%)'],
+                        datasets: [{
+                            data: [35, 45, 20],
+                            backgroundColor: [
+                                '#dc3545', // Red
+                                '#28a745', // Green
+                                '#ffc107'  // Yellow
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+
+                // Initialize Heatmap
+                initHeatmap();
+            }
+
+            // Initialize Heatmap
+            function initHeatmap() {
+                const heatmapContainer = document.getElementById('heatmapContainer');
+                if (!heatmapContainer || !h337) return;
+
+                const heatmapInstance = h337.create({
+                    container: heatmapContainer,
+                    radius: 20,
+                    maxOpacity: 0.8,
+                    minOpacity: 0.1,
+                    blur: 0.8
+                });
+
+                // Generate random heatmap data
+                const width = heatmapContainer.offsetWidth;
+                const height = heatmapContainer.offsetHeight;
+                const points = [];
+                const max = 100;
+                const min = 0;
+                
+                // Generate some random data
+                for (let i = 0; i < 50; i++) {
+                    const x = Math.floor(Math.random() * width);
+                    const y = Math.floor(Math.random() * height);
+                    const value = Math.floor(Math.random() * 100);
+                    
+                    points.push({
+                        x: x,
+                        y: y,
+                        value: value
+                    });
+                }
+                
+                // Add extra points for "hotspots"
+                for (let i = 0; i < 10; i++) {
+                    const x = Math.floor(width * 0.3 + Math.random() * 50);
+                    const y = Math.floor(height * 0.4 + Math.random() * 50);
+                    
+                    points.push({
+                        x: x,
+                        y: y,
+                        value: 80 + Math.random() * 20
+                    });
+                }
+                
+                // Set data
+                heatmapInstance.setData({
+                    max: max,
+                    min: min,
+                    data: points
+                });
+
+                // Update heatmap on location change
+                document.getElementById('heatmapLocationSelect').addEventListener('change', function() {
+                    // In a real application, you would fetch new data based on the selected location
+                    // For this demo, we'll just generate new random data
+                    const newPoints = [];
+                    
+                    for (let i = 0; i < 50; i++) {
+                        const x = Math.floor(Math.random() * width);
+                        const y = Math.floor(Math.random() * height);
+                        const value = Math.floor(Math.random() * 100);
+                        
+                        newPoints.push({
+                            x: x,
+                            y: y,
+                            value: value
+                        });
+                    }
+                    
+                    // Add hotspots based on selected location
+                    const location = this.value;
+                    let hotspotX = width * 0.5;
+                    let hotspotY = height * 0.5;
+                    
+                    if (location === 'downtown') {
+                        hotspotX = width * 0.3;
+                        hotspotY = height * 0.4;
+                    } else if (location === 'uptown') {
+                        hotspotX = width * 0.7;
+                        hotspotY = height * 0.3;
+                    } else if (location === 'midtown') {
+                        hotspotX = width * 0.5;
+                        hotspotY = height * 0.6;
+                    }
+                    
+                    for (let i = 0; i < 15; i++) {
+                        const x = Math.floor(hotspotX + Math.random() * 60 - 30);
+                        const y = Math.floor(hotspotY + Math.random() * 60 - 30);
+                        
+                        newPoints.push({
+                            x: x,
+                            y: y,
+                            value: 80 + Math.random() * 20
+                        });
+                    }
+                    
+                    heatmapInstance.setData({
+                        max: max,
+                        min: min,
+                        data: newPoints
+                    });
+                });
+            }
+
+            // Initialize the dashboard
+            populateFlaggedVehiclesTable(flaggedVehicles);
+            populateRecommendationsList(recommendations);
+            populateReportsList(reports);
+            
+            // Initialize charts after a small delay to ensure containers are fully rendered
+            setTimeout(initCharts, 100);
+            
+            // Refresh charts button
+            document.getElementById('refreshCharts').addEventListener('click', function() {
+                // In a real application, you would fetch new data
+                this.classList.add('refreshing');
+                setTimeout(() => {
+                    this.classList.remove('refreshing');
+                }, 1000);
+            });
+            
+            // Refresh recommendations button
+            document.getElementById('refreshRecommendations').addEventListener('click', function() {
+                // In a real application, you would fetch new recommendations
+                this.classList.add('refreshing');
+                setTimeout(() => {
+                    this.classList.remove('refreshing');
+                    // Add a new recommendation
+                    recommendations.unshift({
+                        title: 'New Pricing Strategy',
+                        description: 'Consider implementing weekend discounts in Midtown Lot C to increase utilization.'
+                    });
+                    populateRecommendationsList(recommendations);
+                }, 1000);
+            });
+            
+            // Time range select for charts
+            document.getElementById('timeRangeSelect').addEventListener('change', function() {
+                // In a real application, you would update the charts with new data
+                // For this demo, we'll just show an alert
+                alert(`Time range changed to ${this.value}. In a real application, charts would update with new data.`);
+            });
+        });
+    </script>
+</body>
+</html>
