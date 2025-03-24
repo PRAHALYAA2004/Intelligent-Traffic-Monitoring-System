@@ -14,7 +14,7 @@ const roadModel = require("./models/roadModel");
 const schoolModel = require("./models/schoolModel");
 const busModel = require("./models/busModel");
 const penaltyModel = require("./models/penaltyModel");
-const reportModel = require("./models/reportModel"); // New model for traffic_watch
+const reportModel = require("./models/reportModel");
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
@@ -68,9 +68,8 @@ const initializeDBs = async () => {
   const penaltyModels = penaltyModel(penaltyConn);
   PublicData = penaltyModels.PublicData;
   ViolationData = penaltyModels.ViolationData;
-  Report = reportModel(trafficWatchConn); // Initialize the Report model
+  Report = reportModel(trafficWatchConn);
 
-  // Debug: Confirm models are initialized
   console.log("User model initialized:", User ? "Yes" : "No");
   console.log("Report model initialized:", Report ? "Yes" : "No");
 
@@ -110,7 +109,7 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
         restrictions: road.restrictions,
       });
     } catch (err) {
-      console.error("Error fetching speed limit:", err);
+      console.error("Error fetching speed limit:", err.message, err.stack);
       res.status(500).json({ error: err.message });
     }
   });
@@ -123,7 +122,7 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
       }
       res.json(schools);
     } catch (err) {
-      console.error("Error fetching schools:", err);
+      console.error("Error fetching schools:", err.message, err.stack);
       res.status(500).json({ error: err.message });
     }
   });
@@ -139,7 +138,7 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
       }
       res.json(school);
     } catch (err) {
-      console.error("Error fetching school:", err);
+      console.error("Error fetching school:", err.message, err.stack);
       res.status(500).json({ error: err.message });
     }
   });
@@ -153,7 +152,7 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
       }
       res.json(buses);
     } catch (error) {
-      console.error("Error fetching bus schedules:", error);
+      console.error("Error fetching bus schedules:", error.message, error.stack);
       res.status(500).json({ message: "Error fetching bus schedules" });
     }
   });
@@ -168,6 +167,7 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
       await newBus.save();
       res.json(newBus);
     } catch (error) {
+      console.error("Error adding bus schedule:", error.message, error.stack);
       res.status(500).json({ message: "Error adding bus schedule" });
     }
   });
@@ -188,7 +188,7 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
       }
       res.json({ message: "Schedule updated successfully!" });
     } catch (error) {
-      console.error("Error updating bus schedule:", error);
+      console.error("Error updating bus schedule:", error.message, error.stack);
       res.status(500).json({ message: "Error updating bus schedule" });
     }
   });
@@ -202,56 +202,60 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
       }
       res.json({ message: "Bus schedule deleted successfully" });
     } catch (error) {
+      console.error("Error deleting bus schedule:", error.message, error.stack);
       res.status(500).json({ message: "Error deleting bus schedule" });
     }
   });
 
-  // New Routes for traffic-signal.html
+  // Routes for traffic-signal.html
   app.post("/api/submit-report", async (req, res) => {
     try {
-        console.log("Received form data:", req.body);
-        const formData = req.body;
+      console.log("Received form data:", req.body);
+      const formData = req.body;
 
-        const reportId = generateReportId();
-        console.log("Generated report ID:", reportId);
+      const reportId = generateReportId();
+      console.log("Generated report ID:", reportId);
 
-        const reportData = new Report({
-            ...formData,
-            report_id: reportId,
-            status: "in progress",
-            created_at: new Date(),
-        });
+      const reportData = new Report({
+        ...formData,
+        report_id: reportId,
+        status: "in progress",
+        created_at: new Date(),
+      });
 
-        console.log("Saving report to database...");
-        await reportData.save();
-        console.log("Report saved successfully:", reportData);
+      console.log("Saving report to database...");
+      await reportData.save();
+      console.log("Report saved successfully:", reportData);
 
-        res.status(200).json({ reportId });
+      res.status(200).json({ reportId });
     } catch (error) {
-        console.error("Error saving report:", error.message, error.stack);
-        res.status(500).json({ error: "Failed to save report", details: error.message });
+      console.error("Error saving report:", error.message, error.stack);
+      res.status(500).json({ error: "Failed to save report", details: error.message });
     }
-});
+  });
 
   app.get("/api/check-status/:reportId", async (req, res) => {
     try {
       const reportId = req.params.reportId;
+      console.log("Checking status for report ID:", reportId);
       const report = await Report.findOne({ report_id: reportId });
 
       if (report) {
+        console.log("Report found:", report);
         res.status(200).json({
           status: report.status,
           details: `Your report is currently ${report.status}.`,
         });
       } else {
+        console.log("Report not found for ID:", reportId);
         res.status(404).json({
           status: "Not Found",
           details: "No report found with this ID. Please check the ID and try again.",
         });
       }
     } catch (error) {
-      console.error("Error checking report status:", error);
-      res.status(500).json({ error: "Failed to check report status" });
+      console.error("Error checking report status:", error.message, error.stack);
+      res.status(500).json({ error: "Failed to check report status", details: error.message });
     }
   });
 
@@ -263,6 +267,17 @@ const setupRoutes = (User, RoadSpeed, SchoolZone, Bus, PublicData, ViolationData
 };
 
 // Serve Frontend Routes
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+app.get("/signup", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "signup.html"));
+});
 
 app.get("/zonespeed", (req, res) => {
   res.sendFile(path.join(__dirname, "user-dashboard", "speed-violation.html"));
@@ -281,7 +296,7 @@ app.get("/user-dashboard", (req, res) => {
 });
 
 app.get("/traffic-signal", (req, res) => {
-  res.sendFile(path.join(__dirname, "user-dashboard", "predictive-traffic.html"));
+  res.sendFile(path.join(__dirname, "user-dashboard", "traffic-signal.html"));
 });
 
 // Start Server
@@ -314,7 +329,7 @@ const shutdown = async () => {
       process.exit(0);
     });
   } catch (err) {
-    console.error("Error during shutdown:", err);
+    console.error("Error during shutdown:", err.message, err.stack);
     process.exit(1);
   }
 };

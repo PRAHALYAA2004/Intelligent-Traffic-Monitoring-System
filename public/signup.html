@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - TrafficIQ</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/login.css">
-    <link rel="stylesheet" href="css/signup.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/signup.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 </head>
 <body>
@@ -52,7 +52,7 @@
                         <div class="form-group">
                             <label for="password">Password</label>
                             <input type="password" id="password" name="password" placeholder="Create a password" required>
-                            <small class="password-hint">Password must be at least 8 characters long</small>
+                            <small class="password-hint">Password must be at least 8 characters long, contain at least one uppercase letter, and one special character (@$!%*?&)</small>
                         </div>
                         <div class="form-group">
                             <label for="confirmPassword">Confirm Password</label>
@@ -71,7 +71,7 @@
                     </div>
                 </div>
                 <div class="login-image">
-                    <img src="images/traffic_home_img.jpeg" alt="Traffic management visualization">
+                    <img src="/images/traffic_home_img.jpeg" alt="Traffic management visualization">
                     <div class="login-overlay">
                         <h3>Intelligent Traffic Management</h3>
                         <p>Optimize traffic flow, reduce congestion, and enhance road safety with our AI-powered system.</p>
@@ -84,7 +84,7 @@
     <footer>
         <div class="container">
             <div class="footer-bottom">
-                <p>&copy; 2025 TrafficIQ. All rights reserved.</p>
+                <p>© 2025 TrafficIQ. All rights reserved.</p>
                 <div class="footer-legal">
                     <a href="./privacypolicy.html">Privacy Policy</a>
                     <a href="./privacypolicy.html">Terms of Service</a>
@@ -96,74 +96,74 @@
     <script>
         // Simple JavaScript for mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', function () {
-          document.querySelector('nav').classList.toggle('active');
-          this.classList.toggle('active');
+            document.querySelector('nav').classList.toggle('active');
+            this.classList.toggle('active');
         });
-      
+
         // Form validation and submission handler
-        document.getElementById('signupForm').addEventListener('submit', function (e) {
-          e.preventDefault();
-      
-          // Get form values and trim whitespace
-          const fullname = document.getElementById('fullname').value.trim();
-          const email = document.getElementById('email').value.trim();
-          const password = document.getElementById('password').value.trim();
-          const confirmPassword = document.getElementById('confirmPassword').value.trim();
-          const termsAgreed = document.getElementById('terms').checked;
-      
-          // Enhanced validation to match server-side
-          const passwordRegex = /^(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-          if (!passwordRegex.test(password)) {
-            alert(
-              'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.'
-            );
-            return;
-          }
-      
-          if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-          }
-      
-          if (!termsAgreed) {
-            alert('You must agree to the Terms of Service and Privacy Policy');
-            return;
-          }
-      
-          // Prepare data, mapping fullname to username
-          const data = {
-            username: fullname,
-            email,
-            password,
-          };
-      
-          // Send data to the server
-          fetch('/api/signup', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`Server responded with status: ${response.status}`);
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Get form values and trim whitespace
+            const fullname = document.getElementById('fullname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            const termsAgreed = document.getElementById('terms').checked;
+
+            // Client-side validation
+            const passwordRegex = /^(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                alert(
+                    'Password must be at least 8 characters long, contain at least one uppercase letter, and one special character (@$!%*?&).'
+                );
+                return;
             }
-            return response.json();
-          })
-          .then((data) => {
-            if (data.success) {
-              alert('Account created successfully! You can now log in.');
-              window.location.href = 'login.html';
-            } else {
-              alert(data.message || 'Signup failed. Please try again.');
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
             }
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-          });
+
+            if (!termsAgreed) {
+                alert('You must agree to the Terms of Service and Privacy Policy');
+                return;
+            }
+
+            // Prepare data, mapping fullname to username
+            const data = {
+                username: fullname,
+                email,
+                password,
+            };
+
+            try {
+                console.log("Sending signup request:", data);
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                console.log("Response status:", response.status);
+                const result = await response.json(); // Parse the response body even if the status is not ok
+
+                if (response.ok) {
+                    // Success case
+                    alert('Account created successfully! You can now log in.');
+                    window.location.href = 'login.html';
+                } else {
+                    // Error case: Display the server's error message
+                    console.log("Response data:", result);
+                    alert(result.message || 'Signup failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Signup error:', error.message, error.stack);
+                alert(`An error occurred during signup: ${error.message}`);
+            }
         });
-      </script>
+    </script>
 </body>
 </html>

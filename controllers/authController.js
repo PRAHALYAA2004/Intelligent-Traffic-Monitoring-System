@@ -1,6 +1,7 @@
 // controllers/authController.js
 const bcrypt = require("bcrypt");
 
+
 const login = (User) => async (req, res) => {
   const { username, password } = req.body;
   console.log("Login request received:", username, password);

@@ -13,10 +13,11 @@ module.exports = (User) => {
       return res.status(400).json({ message: 'Username, email, and password are required' });
     }
 
-    const passwordRegex = /^(?=.[A-Z])(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
+    // Fix the regex: Use (?=.*[A-Z]) and (?=.*[@$!%?&]) for correct lookahead
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
-        message: 'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.',
+        message: 'Password must be at least 8 characters long, contain at least one uppercase letter, and one special character (@$!%*?&).',
       });
     }
 
