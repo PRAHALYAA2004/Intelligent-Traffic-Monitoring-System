@@ -27,6 +27,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+ feature/speed-violation
     "@testing-library/jest-dom": "^6.6.3",
     "@vitest/coverage-v8": "^3.0.9",
     "@vitest/ui": "^3.0.9",
@@ -39,11 +40,18 @@
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0",
     "vitest": "^3.0.9"
+
+    "nodemon": "^3.1.9"
+ main
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System.git"
   },
+ feature/speed-violation
+
+  "type": "commonjs",
+ main
   "bugs": {
     "url": "https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System/issues"
   },
