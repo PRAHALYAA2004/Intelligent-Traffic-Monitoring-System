@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Traffic Watch - TrafficIQ</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Add Tesseract.js via CDN -->
+    <script src="https://unpkg.com/tesseract.js@v5.0.0/dist/tesseract.min.js"></script>
+    <!-- Add Chart.js (required by user-dashboard.html scripts) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include styles.css and dashboard.css -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <style>
+        /* Global Styles (adjusted for dashboard layout) */
+        :root {
+            --primary-color: #2c7be5;
+            --secondary-color: #6c757d;
+            --success-color: #00b894;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #f8f9fa;
+            --border-radius: 4px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+
+        /* Adjust container for dashboard layout */
+        .content-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 0; /* Remove padding here to control spacing via child elements */
+            margin: 20px; /* Add margin for spacing within the dashboard layout */
+        }
+
+        .content-header {
+            background-color: var(--primary-color); /* Blue background */
+            color: #fff; /* White text */
+            padding: 20px; /* Padding for spacing */
+            text-align: center;
+            border-top-left-radius: 10px; /* Rounded top corners */
+            border-top-right-radius: 10px;
+            border-bottom: none; /* Remove the bottom border */
+        }
+
+        .content-header h1 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff; /* Ensure white text */
+        }
+
+        .content-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            color: #fff; /* Ensure white text */
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Form Styles */
+        .form-container {
+            padding: 30px; /* Add padding here to space out the form from the header */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(44, 123, 229, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--danger-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+            margin-top: 3px;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 1px dashed #e0e0e0;
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-label:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .license-plate-result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        /* Button Styles */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #00a382;
+        }
+
+        .btn-secondary {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Confirmation Styles */
+        .confirmation-container {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .confirmation-icon {
+            font-size: 60px;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+
+        .confirmation-message {
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .report-id {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            display: inline-block;
+        }
+
+        /* Status Check Styles */
+        .status-check-container {
+            padding: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .status-check-container h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .status-check-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-check-form input {
+            flex: 1;
+        }
+
+        .status-result {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status-result h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .status-in-progress {
+            background-color: var(--warning-color);
+        }
+
+        .status-processed {
+            background-color: var(--primary-color);
+        }
+
+        .status-closed {
+            background-color: var(--success-color);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .status-check-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (Copied from user-dashboard.html) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="user-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="speed-violation.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
+                            <span>Road Speed Limit Finder(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="traffic-signal.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Traffic Signal</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="parking-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path></svg>
+                            <span>Parking Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="public-transport.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M8 6v6"></path><path d="m8 16 4 4"></path><path d="m16 10 4-4"></path><circle cx="16" cy="16" r="6"></circle></svg>
+                            <span>Public Transport</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="predictive-traffic.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 12h10"></path><path d="M9 4v16"></path><path d="m3 9 3 3-3 3"></path><path d="M14 8h8"></path><path d="M18 4v16"></path><path d="m22 12-3 3-3-3"></path></svg>
+                            <span>Citizen Traffic Watch(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dynamic-route-adjustment.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path><path d="M12 3v6"></path></svg>
+                            <span>Route Adjustment</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar">JD</div>
+                    <div class="user-info">
+                        <h4>John Doe</h4>
+                        <p>Traffic Operator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar (Copied from user-dashboard.html) -->
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+                </div>
+                <h2>Penalty Reporting</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Existing Content from penalty.html -->
+            <div class="dashboard-content">
+                <div class="content-container">
+                    <div class="content-header">
+                        <h1>Citizen Traffic Watch</h1>
+                        <p>Report unsafe driving behavior in your neighborhood</p>
+                    </div>
+
+                    <!-- Report Form -->
+                    <div id="reportForm" class="form-container">
+                        <form id="trafficReportForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="incidentDate" class="required">Date of Incident</label>
+                                    <input type="date" id="incidentDate" name="incidentDate" required>
+                                    <div class="error-message" id="incidentDateError">Please select a date</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="incidentTime" class="required">Time of Incident</label>
+                                    <input type="time" id="incidentTime" name="incidentTime" required>
+                                    <div class="error-message" id="incidentTimeError">Please select a time</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="location" class="required">Location</label>
+                                <input type="text" id="location" name="location" placeholder="Street name or coordinates" required>
+                                <div class="error-message" id="locationError">Please enter a location</div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="vehicleMake">Vehicle Make</label>
+                                    <input type="text" id="vehicleMake" name="vehicleMake" placeholder="e.g. Toyota, Honda">
+                                </div>
+                                <div class="form-group">
+                                    <label for="vehicleModel">Vehicle Model</label>
+                                    <input type="text" id="vehicleModel" name="vehicleModel" placeholder="e.g. Camry, Civic">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vehicleColor">Vehicle Color</label>
+                                <input type="text" id="vehicleColor" name="vehicleColor" placeholder="e.g. Red, Blue, Silver">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vehicleImage">Upload Image (Optional)</label>
+                                <div class="file-upload">
+                                    <label for="vehicleImage" class="file-upload-label">
+                                        <i class="fas fa-cloud-upload-alt"></i> Choose an image
+                                    </label>
+                                    <input type="file" id="vehicleImage" name="vehicleImage" accept="image/*">
+                                </div>
+                                <div class="file-name" id="fileName"></div>
+                                <img id="imagePreview" class="preview-image" alt="Vehicle preview">
+                                <div class="license-plate-result" id="licensePlateResult">
+                                    <strong>Detected License Plate:</strong> <span id="licensePlateNumber"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="violationType" class="required">Type of Violation</label>
+                                <select id="violationType" name="violationType" required>
+                                    <option value="">Select violation type</option>
+                                    <option value="Speeding">Speeding</option>
+                                    <option value="Reckless Driving">Reckless Driving</option>
+                                    <option value="Distracted Driving">Distracted Driving</option>
+                                </select>
+                                <div class="error-message" id="violationTypeError">Please select a violation type</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description" class="required">Description of Incident</label>
+                                <textarea id="description" name="description" placeholder="Please provide details about what you observed" required></textarea>
+                                <div class="error-message" id="descriptionError">Please provide a description</div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="reporterName" class="required">Your Name</label>
+                                    <input type="text" id="reporterName" name="reporterName" required>
+                                    <div class="error-message" id="reporterNameError">Please enter your name</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reporterEmail" class="required">Your Email</label>
+                                    <input type="email" id="reporterEmail" name="reporterEmail" required>
+                                    <div class="error-message" id="reporterEmailError">Please enter a valid email</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reporterPhone" class="required">Your Phone Number</label>
+                                <input type="tel" id="reporterPhone" name="reporterPhone" placeholder="e.g. 1234567890" pattern="[0-9]{10}" maxlength="10" required>
+                                <div class="error-message" id="reporterPhoneError">Please enter a valid 10-digit phone number (e.g., 1234567890)</div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="confirmAccuracy" name="confirmAccuracy" required>
+                                    <label for="confirmAccuracy">I confirm this report is accurate to the best of my knowledge</label>
+                                </div>
+                                <div class="error-message" id="confirmAccuracyError">You must confirm the accuracy of this report</div>
+                            </div>
+
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">Submit Report</button>
+                                <button type="button" id="clearFormBtn" class="btn btn-secondary">Clear Form</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Confirmation Message -->
+                    <div id="confirmationMessage" class="confirmation-container hidden">
+                        <div class="confirmation-icon">✓</div>
+                        <h2>Report Submitted Successfully!</h2>
+                        <p class="confirmation-message">Thank you for helping to make our roads safer. Your report has been received and will be reviewed by our team.</p>
+                        <div class="report-id">
+                            Report ID: <span id="generatedReportId"></span>
+                        </div>
+                        <p>Please save this ID for future reference.</p>
+                        <button id="submitAnotherBtn" class="btn btn-primary">Submit Another Report</button>
+                    </div>
+
+                    <!-- Status Check Section -->
+                    <div class="status-check-container">
+                        <h2>Check Report Status</h2>
+                        <div class="status-check-form">
+                            <input type="text" id="checkReportId" placeholder="Enter your Report ID (e.g., CTW-ABC123)">
+                            <button id="checkStatusBtn" class="btn btn-outline">Check Status</button>
+                        </div>
+                        <div id="statusResult" class="status-result">
+                            <h3>Report: <span id="statusReportId"></span></h3>
+                            <p>Status: <span class="status-badge" id="statusBadge"></span></p>
+                            <p id="statusDetails"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile menu toggle (from user-dashboard.html)
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Existing JavaScript from penalty.html
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const reportForm = document.getElementById('reportForm');
+            const trafficReportForm = document.getElementById('trafficReportForm');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            const generatedReportId = document.getElementById('generatedReportId');
+            const submitAnotherBtn = document.getElementById('submitAnotherBtn');
+            const clearFormBtn = document.getElementById('clearFormBtn');
+            const checkStatusBtn = document.getElementById('checkStatusBtn');
+            const checkReportId = document.getElementById('checkReportId');
+            const statusResult = document.getElementById('statusResult');
+            const statusReportId = document.getElementById('statusReportId');
+            const statusBadge = document.getElementById('statusBadge');
+            const statusDetails = document.getElementById('statusDetails');
+            const vehicleImage = document.getElementById('vehicleImage');
+            const fileName = document.getElementById('fileName');
+            const imagePreview = document.getElementById('imagePreview');
+            const licensePlateResult = document.getElementById('licensePlateResult');
+            const licensePlateNumber = document.getElementById('licensePlateNumber');
+
+            // Function to extract license plate number using Tesseract.js
+            async function extractLicensePlate(imageFile) {
+                try {
+                    licensePlateNumber.textContent = 'Processing...';
+                    licensePlateResult.style.display = 'block';
+
+                    const imageUrl = URL.createObjectURL(imageFile);
+                    console.log('Processing image with Tesseract.js:', imageUrl);
+
+                    const { data: { text } } = await Tesseract.recognize(
+                        imageUrl,
+                        'eng',
+                        {
+                            logger: (m) => console.log(m),
+                            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+                            tessedit_pageseg_mode: 6,
+                        }
+                    );
+
+                    console.log('Tesseract OCR Result:', text);
+
+                    const cleanedText = text.replace(/[^A-Z0-9]/g, '').toUpperCase();
+                    const licensePlateMatch = cleanedText.match(/[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}/);
+
+                    if (licensePlateMatch) {
+                        licensePlateNumber.textContent = licensePlateMatch[0];
+                    } else {
+                        licensePlateNumber.textContent = 'Not Detected';
+                    }
+
+                    URL.revokeObjectURL(imageUrl);
+                    return licensePlateMatch ? licensePlateMatch[0] : null;
+                } catch (error) {
+                    console.error('Error with Tesseract OCR:', error.message);
+                    licensePlateNumber.textContent = 'Error Detecting Plate: ' + error.message;
+                    return null;
+                }
+            }
+
+            // Handle image upload
+            let detectedLicensePlate = null;
+            vehicleImage.addEventListener('change', async function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    fileName.textContent = file.name;
+
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+
+                        detectedLicensePlate = await extractLicensePlate(file);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileName.textContent = '';
+                    imagePreview.style.display = 'none';
+                    licensePlateResult.style.display = 'none';
+                    detectedLicensePlate = null;
+                }
+            });
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.style.display = 'none';
+                });
+
+                const requiredFields = [
+                    { id: 'incidentDate', errorId: 'incidentDateError' },
+                    { id: 'incidentTime', errorId: 'incidentTimeError' },
+                    { id: 'location', errorId: 'locationError' },
+                    { id: 'violationType', errorId: 'violationTypeError' },
+                    { id: 'description', errorId: 'descriptionError' },
+                    { id: 'reporterName', errorId: 'reporterNameError' },
+                    { id: 'reporterEmail', errorId: 'reporterEmailError' },
+                    { id: 'reporterPhone', errorId: 'reporterPhoneError' },
+                    { id: 'confirmAccuracy', errorId: 'confirmAccuracyError' }
+                ];
+
+                requiredFields.forEach(field => {
+                    const input = document.getElementById(field.id);
+                    const error = document.getElementById(field.errorId);
+                    if (!input.value || (field.id === 'confirmAccuracy' && !input.checked)) {
+                        error.style.display = 'block';
+                        isValid = false;
+                    }
+                });
+
+                const email = document.getElementById('reporterEmail');
+                const emailError = document.getElementById('reporterEmailError');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (email.value && !emailRegex.test(email.value)) {
+                    emailError.textContent = 'Please enter a valid email';
+                    emailError.style.display = 'block';
+                    isValid = false;
+                }
+
+                const phone = document.getElementById('reporterPhone');
+                const phoneError = document.getElementById('reporterPhoneError');
+                const phoneRegex = /^\d{10}$/;
+                if (phone.value && !phoneRegex.test(phone.value)) {
+                    phoneError.textContent = 'Please enter a valid 10-digit phone number (e.g., 1234567890)';
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            // Form submission
+            // In traffic-signal.html, update the form submission handler
+trafficReportForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    if (validateForm()) {
+        const formData = {
+            date_of_incident: document.getElementById('incidentDate').value,
+            time_of_incident: document.getElementById('incidentTime').value,
+            location: document.getElementById('location').value,
+            vehicle_make: document.getElementById('vehicleMake').value,
+            vehicle_model: document.getElementById('vehicleModel').value,
+            vehicle_color: document.getElementById('vehicleColor').value,
+            license_plate: detectedLicensePlate || 'Not Provided',
+            violation_type: document.getElementById('violationType').value,
+            description: document.getElementById('description').value,
+            reporter_name: document.getElementById('reporterName').value,
+            reporter_email: document.getElementById('reporterEmail').value,
+            reporter_phone: document.getElementById('reporterPhone').value
+        };
+
+        console.log("Submitting form data:", formData); // Log the data being sent
+
+        try {
+            const response = await fetch('http://localhost:3000/api/submit-report', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(formData)
+});
+
+            console.log("Response status:", response.status); // Log the response status
+            const result = await response.json();
+            console.log("Response data:", result); // Log the response data
+
+            if (response.ok) {
+                generatedReportId.textContent = result.reportId;
+                reportForm.classList.add('hidden');
+                confirmationMessage.classList.remove('hidden');
+            } else {
+                alert('Failed to submit report: ' + (result.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error.message, error.stack); // Log the full error
+            alert('An error occurred while submitting the report: ' + error.message);
+        }
+    }
+});
+
+            // Clear form
+            clearFormBtn.addEventListener('click', function() {
+                trafficReportForm.reset();
+                fileName.textContent = '';
+                imagePreview.style.display = 'none';
+                licensePlateResult.style.display = 'none';
+                detectedLicensePlate = null;
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.style.display = 'none';
+                });
+            });
+
+            // Submit another report
+            submitAnotherBtn.addEventListener('click', function() {
+                confirmationMessage.classList.add('hidden');
+                reportForm.classList.remove('hidden');
+                trafficReportForm.reset();
+                fileName.textContent = '';
+                imagePreview.style.display = 'none';
+                licensePlateResult.style.display = 'none';
+                detectedLicensePlate = null;
+            });
+
+            // Check report status by calling the server endpoint
+            // In traffic-signal.html, update the status check handler
+checkStatusBtn.addEventListener('click', async function() {
+    const reportId = checkReportId.value.trim().toUpperCase();
+    if (!reportId) {
+        alert('Please enter a Report ID');
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/check-status/${reportId}`); // Fix the URL
+        const result = await response.json();
+
+        console.log("Status check response:", result); // Log the response
+
+        statusReportId.textContent = reportId;
+        statusBadge.textContent = result.status;
+        statusBadge.className = 'status-badge';
+
+        // Map the status to the appropriate CSS class
+        if (result.status === 'in progress') {
+            statusBadge.classList.add('status-in-progress');
+        } else if (result.status === 'processed') {
+            statusBadge.classList.add('status-processed');
+        } else if (result.status === 'closed') {
+            statusBadge.classList.add('status-closed');
+        } else {
+            statusBadge.classList.add('status-in-progress'); // Default for "Not Found" or other statuses
+        }
+
+        statusDetails.textContent = result.details;
+        statusResult.style.display = 'block';
+    } catch (error) {
+        console.error('Error checking report status:', error.message, error.stack);
+        alert('An error occurred while checking the report status: ' + error.message);
+    }
+});
+        });
+    </script>
+</body>
+</html>

@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    
+    "test:ui": "vitest --ui",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
@@ -17,21 +18,40 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "intelligent-traffic-monitoring-system": "file:",
     "leaflet": "^1.9.4",
-    "mongoose": "^8.12.1",
+    "node-mocks-http": "^1.16.2",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+ feature/speed-violation
+    "@testing-library/jest-dom": "^6.6.3",
+    "@vitest/coverage-v8": "^3.0.9",
+    "@vitest/ui": "^3.0.9",
+    "fetch-mock": "^12.5.2",
+    "jest": "^29.7.0",
+    "jsdom": "^26.0.0",
+    "mongodb": "^6.15.0",
+    "mongodb-memory-server": "^10.1.4",
+    "mongoose": "^8.12.1",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0",
+    "vitest": "^3.0.9"
+
     "nodemon": "^3.1.9"
+ main
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System.git"
   },
+ feature/speed-violation
+
   "type": "commonjs",
+ main
   "bugs": {
     "url": "https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System/issues"
   },

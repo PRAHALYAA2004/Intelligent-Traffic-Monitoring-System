@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Monitoring - TrafficIQ</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Add Leaflet for the map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Additional styles for the Road Speed Highlighting section */
+        .road-speed-container {
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Enhanced search container with autocomplete */
+        .search-container {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            max-width: 600px;
+        }
+
+        .search-container input {
+            padding: 10px 10px 10px 35px;
+            font-size: 16px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .search-container input:focus {
+            border-color: #0066cc;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .search-container button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Autocomplete dropdown */
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            text-align: left;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .autocomplete-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.2s;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Map container with legend */
+        .map-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Speed limit legend */
+        .speed-legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .speed-legend h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 10px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .legend-text {
+            font-size: 12px;
+            color: #333;
+        }
+
+        /* Recent searches */
+        .recent-searches {
+            margin: 15px auto;
+            text-align: left;
+            max-width: 600px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .recent-searches h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .recent-searches-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .recent-search-item {
+            background-color: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: 'Inter', sans-serif;
+            color: #333;
+        }
+
+        .recent-search-item:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Enhanced road info card */
+        .road-info-card {
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 600px;
+            font-family: 'Inter', sans-serif;
+            display: none;
+        }
+
+        .road-info-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .road-info-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .speed-indicator {
+            background-color: #e0e0e0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .speed-indicator.low {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        .speed-indicator.medium {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+
+        .speed-indicator.high {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .road-info-details {
+            padding: 15px 20px;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Nearby roads section */
+        .nearby-roads {
+            margin: 20px auto;
+            max-width: 600px;
+            font-family: 'Inter', sans-serif;
+            display: none;
+        }
+
+        .nearby-roads h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: left;
+        }
+
+        .nearby-roads-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .nearby-road-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: left;
+        }
+
+        .nearby-road-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nearby-road-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .nearby-road-speed {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .nearby-road-speed.low {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        .nearby-road-speed.medium {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+
+        .nearby-road-speed.high {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .nearby-road-distance {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* Filter system */
+        .filter-container {
+            margin-bottom: 15px;
+            position: relative;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .filter-toggle {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f0;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .filter-toggle:hover {
+            background-color: #e0e0e0;
+        }
+
+        .filter-toggle i {
+            margin-right: 6px;
+        }
+
+        .filter-panel {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            z-index: 1000;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .filter-option input {
+            margin-right: 5px;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .apply-filters, .reset-filters {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .apply-filters {
+            background-color: #0066cc;
+            color: white;
+        }
+
+        .apply-filters:hover {
+            background-color: #0056b3;
+        }
+
+        .reset-filters {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .reset-filters:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nearby-roads-list {
+                grid-template-columns: 1fr;
+            }
+
+            .road-info-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .speed-indicator {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="user-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="speed-violation.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
+                            <span>Road Speed Limit Finder(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="traffic-signal.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Traffic Signal</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="parking-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path></svg>
+                            <span>Parking Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="public-transport.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M8 6v6"></path><path d="m8 16 4 4"></path><path d="m16 10 4-4"></path><circle cx="16" cy="16" r="6"></circle></svg>
+                            <span>Public Transport</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="predictive-traffic.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 12h10"></path><path d="M9 4v16"></path><path d="m3 9 3 3-3 3"></path><path d="M14 8h8"></path><path d="M18 4v16"></path><path d="m22 12-3 3-3-3"></path></svg>
+                            <span>Citizen Traffic Watch(Priya)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dynamic-route-adjustment.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path><path d="M12 3v6"></path></svg>
+                            <span>Route Adjustment</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar">JD</div>
+                    <div class="user-info">
+                        <h4>John Doe</h4>
+                        <p>Traffic Operator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+                </div>
+                <h2>Speed Monitoring</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                        <span class="badge">5</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Road Speed Highlighting Section -->
+                <div class="dashboard-row">
+                    <div class="dashboard-card large">
+                        <div class="card-header">
+                            <h3>Road Speed Limit Finder</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="road-speed-container">
+                                <!-- Filter System -->
+                                <div class="filter-container">
+                                    <button id="filterToggle" class="filter-toggle">
+                                        <i class="fas fa-filter"></i> Filters
+                                    </button>
+                                    <div id="filterPanel" class="filter-panel">
+                                        <div class="filter-group">
+                                            <h4>Road Type</h4>
+                                            <div class="filter-options">
+                                                <label class="filter-option">
+                                                    <input type="checkbox" name="roadType" value="highway"> Highway
+                                                </label>
+                                                <label class="filter-option">
+                                                    <input type="checkbox" name="roadType" value="residential"> Residential
+                                                </label>
+                                                <label class="filter-option">
+                                                    <input type="checkbox" name="roadType" value="primary"> Primary
+                                                </label>
+                                                <label class="filter-option">
+                                                    <input type="checkbox" name="roadType" value="secondary"> Secondary
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="filter-group">
+                                            <h4>Speed Limit</h4>
+                                            <div class="filter-options">
+                                                <label class="filter-option">
+                                                    <input type="checkbox" name="speedLimit" value="0-20"> 0-20 km/h
+                                                </label>
+                                                <label class="filter-option">
+                                                    <input type="checkbox" name="speedLimit" value="30-60"> 30-60 km/h
+                                                </label>
+                                                <label class="filter-option">
+                                                    <input type="checkbox" name="speedLimit" value="70-90"> 70-90 km/h
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="filter-actions">
+                                            <button id="applyFilters" class="apply-filters">Apply Filters</button>
+                                            <button id="resetFilters" class="reset-filters">Reset</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Enhanced Search with Autocomplete -->
+                                <div class="search-container">
+                                    <div style="position: relative; flex-grow: 1;">
+                                        <i class="fas fa-search search-icon"></i>
+                                        <input type="text" id="roadInput" placeholder="Enter road name">
+                                        <div id="autocompleteResults" class="autocomplete-results"></div>
+                                    </div>
+                                    <button onclick="searchRoad()">Search</button>
+                                </div>
+
+                                <!-- Recent Searches -->
+                                <div class="recent-searches" id="recentSearches">
+                                    <h4>Recent Searches</h4>
+                                    <div class="recent-searches-list" id="recentSearchesList"></div>
+                                </div>
+
+                                <!-- Map with Legend -->
+                                <div class="map-container">
+                                    <div id="map"></div>
+                                    <div class="speed-legend">
+                                        <h4>Speed Limit Legend</h4>
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background-color: red;"></span>
+                                            <span class="legend-text">0-20 km/h</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background-color: yellow;"></span>
+                                            <span class="legend-text">30-60 km/h</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <span class="legend-color" style="background-color: green;"></span>
+                                            <span class="legend-text">70-90 km/h</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Enhanced Road Information Card -->
+                                <div class="road-info-card" id="roadInfo">
+                                    <div class="road-info-header">
+                                        <h2 id="roadName"></h2>
+                                        <div class="speed-indicator" id="speedIndicator">
+                                            <span id="speedLimit"></span> km/h
+                                        </div>
+                                    </div>
+                                    <div class="road-info-details">
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class="fas fa-tachometer-alt"></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <span class="info-label">Speed Limit</span>
+                                                <span class="info-value" id="speedLimitText"></span>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <span class="info-label">Restrictions</span>
+                                                <span class="info-value" id="roadRestrictions"></span>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <span class="info-label">Safety Rating</span>
+                                                <span class="info-value" id="safetyRating">Medium</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Nearby Roads Section -->
+                                <div class="nearby-roads" id="nearbyRoads">
+                                    <h3>Nearby Roads</h3>
+                                    <div class="nearby-roads-list" id="nearbyRoadsList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Initialize the map for Road Speed Highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            let map = L.map("map").setView([28.6139, 77.2090], 12);
+            let roadMarker;
+            let roadLayer;
+            let roadSuggestions = [
+                "Connaught Place", "Rajpath", "Chandni Chowk", "Lodhi Road", 
+                "Mehrauli-Badarpur Road", "Ring Road", "Outer Ring Road",
+                "Mathura Road", "Aurobindo Marg", "Vikas Marg"
+            ];
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            function getSpeedColor(speedRange) {
+                if (speedRange === "0-20") return "red";
+                if (speedRange === "30-60") return "yellow";
+                if (speedRange === "70-90") return "green";
+                return "gray"; // Default color for unexpected values
+            }
+
+            function getSpeedClass(speedRange) {
+                if (speedRange === "0-20") return "low";
+                if (speedRange === "30-60") return "medium";
+                if (speedRange === "70-90") return "high";
+                return "";
+            }
+
+            // Normalize road names for better matching
+            function normalizeRoadName(name) {
+                return name
+                    .toLowerCase()
+                    .trim()
+                    .replace(/é/g, 'e') // Replace special characters like "é" with "e"
+                    .replace(/[^a-z0-9\s]/g, '') // Remove non-alphanumeric characters except spaces
+                    .replace(/\s+/g, ' '); // Normalize spaces
+            }
+
+            // Save to recent searches
+            function saveRecentSearch(roadName) {
+                // Get existing searches from localStorage
+                let recentSearches = JSON.parse(localStorage.getItem('recentRoadSearches') || '[]');
+                
+                // Remove the road if it already exists (to avoid duplicates)
+                recentSearches = recentSearches.filter(road => road !== roadName);
+                
+                // Add the new road at the beginning
+                recentSearches.unshift(roadName);
+                
+                // Keep only the 5 most recent searches
+                recentSearches = recentSearches.slice(0, 5);
+                
+                // Save back to localStorage
+                localStorage.setItem('recentRoadSearches', JSON.stringify(recentSearches));
+                
+                // Update the UI
+                displayRecentSearches();
+            }
+
+            // Display recent searches
+            function displayRecentSearches() {
+                const recentSearches = JSON.parse(localStorage.getItem('recentRoadSearches') || '[]');
+                const container = document.getElementById('recentSearchesList');
+                const recentSearchesSection = document.getElementById('recentSearches');
+                
+                if (recentSearches.length === 0) {
+                    recentSearchesSection.style.display = 'none';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                recentSearches.forEach(road => {
+                    const item = document.createElement('div');
+                    item.className = 'recent-search-item';
+                    item.textContent = road;
+                    item.addEventListener('click', function() {
+                        document.getElementById('roadInput').value = road;
+                        searchRoad();
+                    });
+                    container.appendChild(item);
+                });
+                
+                recentSearchesSection.style.display = 'block';
+            }
+
+            // Update road info card
+            function updateRoadInfo(roadName, speedLimit, restrictions) {
+                document.getElementById("roadName").innerText = roadName;
+                document.getElementById("speedLimit").innerText = speedLimit;
+                document.getElementById("speedLimitText").innerText = speedLimit + " km/h";
+                document.getElementById("roadRestrictions").innerText = restrictions;
+                
+                // Update speed indicator color
+                const speedIndicator = document.getElementById("speedIndicator");
+                speedIndicator.className = "speed-indicator";
+                speedIndicator.classList.add(getSpeedClass(speedLimit));
+                
+                // Set a safety rating based on speed limit and restrictions
+                const safetyRating = document.getElementById("safetyRating");
+                if (speedLimit === "0-20") {
+                    safetyRating.innerText = "High";
+                    safetyRating.style.color = "#2e7d32";
+                } else if (speedLimit === "30-60") {
+                    safetyRating.innerText = "Medium";
+                    safetyRating.style.color = "#f57f17";
+                } else {
+                    safetyRating.innerText = "Low";
+                    safetyRating.style.color = "#c62828";
+                }
+                
+                document.getElementById("roadInfo").style.display = "block";
+            }
+
+            // Fetch nearby roads
+            async function fetchNearbyRoads(lat, lon) {
+                try {
+                    // In a real implementation, this would be an API call
+                    // For demo purposes, we'll use mock data
+                    const mockNearbyRoads = [
+                        { road_name: "Adjacent Road 1", speed_limit: "0-20", distance: 0.5 },
+                        { road_name: "Connecting Street", speed_limit: "30-60", distance: 0.8 },
+                        { road_name: "Parallel Avenue", speed_limit: "70-90", distance: 1.2 }
+                    ];
+                    
+                    const nearbyRoadsList = document.getElementById('nearbyRoadsList');
+                    nearbyRoadsList.innerHTML = '';
+                    
+                    mockNearbyRoads.forEach(road => {
+                        const card = document.createElement('div');
+                        card.className = 'nearby-road-card';
+                        
+                        const speedClass = getSpeedClass(road.speed_limit);
+                        
+                        card.innerHTML = `
+                            <div class="nearby-road-name">${road.road_name}</div>
+                            <div class="nearby-road-speed ${speedClass}">${road.speed_limit} km/h</div>
+                            <div class="nearby-road-distance">${road.distance.toFixed(1)} km away</div>
+                        `;
+                        
+                        card.addEventListener('click', function() {
+                            document.getElementById('roadInput').value = road.road_name;
+                            searchRoad();
+                        });
+                        
+                        nearbyRoadsList.appendChild(card);
+                    });
+                    
+                    document.getElementById('nearbyRoads').style.display = 'block';
+                } catch (error) {
+                    console.error("Error fetching nearby roads:", error);
+                    document.getElementById('nearbyRoads').style.display = 'none';
+                }
+            }
+
+            // Autocomplete functionality
+            document.getElementById('roadInput').addEventListener('input', function() {
+                const input = this.value.toLowerCase();
+                const resultsContainer = document.getElementById('autocompleteResults');
+                
+                if (input.length < 2) {
+                    resultsContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Filter road suggestions based on input
+                const filteredSuggestions = roadSuggestions.filter(road => 
+                    road.toLowerCase().includes(input)
+                ).slice(0, 5); // Limit to 5 suggestions
+                
+                if (filteredSuggestions.length === 0) {
+                    resultsContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Display suggestions
+                resultsContainer.innerHTML = '';
+                filteredSuggestions.forEach(road => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    div.textContent = road;
+                    div.addEventListener('click', function() {
+                        document.getElementById('roadInput').value = road;
+                        resultsContainer.style.display = 'none';
+                        searchRoad();
+                    });
+                    resultsContainer.appendChild(div);
+                });
+                
+                resultsContainer.style.display = 'block';
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    document.getElementById('autocompleteResults').style.display = 'none';
+                }
+            });
+
+            // Filter toggle functionality
+            const filterToggle = document.getElementById('filterToggle');
+            const filterPanel = document.getElementById('filterPanel');
+            
+            filterToggle.addEventListener('click', function() {
+                filterPanel.style.display = filterPanel.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // Close filter panel when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.filter-container')) {
+                    filterPanel.style.display = 'none';
+                }
+            });
+            
+            // Apply filters
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                const selectedRoadTypes = Array.from(document.querySelectorAll('input[name="roadType"]:checked'))
+                    .map(checkbox => checkbox.value);
+                    
+                const selectedSpeedLimits = Array.from(document.querySelectorAll('input[name="speedLimit"]:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                // Store filters in localStorage
+                localStorage.setItem('roadFilters', JSON.stringify({
+                    roadTypes: selectedRoadTypes,
+                    speedLimits: selectedSpeedLimits
+                }));
+                
+                // Apply filters to current search if a road is already displayed
+                if (document.getElementById('roadInfo').style.display !== 'none') {
+                    searchRoad(); // Re-run search with filters
+                }
+                
+                filterPanel.style.display = 'none';
+            });
+            
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                localStorage.removeItem('roadFilters');
+                
+                // Re-run search if a road is already displayed
+                if (document.getElementById('roadInfo').style.display !== 'none') {
+                    searchRoad();
+                }
+            });
+
+            // Load saved filters on page load
+            const savedFilters = JSON.parse(localStorage.getItem('roadFilters') || '{"roadTypes":[],"speedLimits":[]}');
+            
+            savedFilters.roadTypes.forEach(type => {
+                const checkbox = document.querySelector(`input[name="roadType"][value="${type}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+            
+            savedFilters.speedLimits.forEach(limit => {
+                const checkbox = document.querySelector(`input[name="speedLimit"][value="${limit}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+
+            // Search road function
+            window.searchRoad = function() {
+                const roadName = document.getElementById("roadInput").value;
+                if (!roadName) {
+                    alert("Please enter a road name!");
+                    return;
+                }
+
+                // Save to recent searches
+                saveRecentSearch(roadName);
+
+                // Get filters
+                const filters = JSON.parse(localStorage.getItem('roadFilters') || '{"roadTypes":[],"speedLimits":[]}');
+                
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&q=${encodeURIComponent(roadName + ', Delhi')}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length === 0) {
+                            alert("No road found with that name in OpenStreetMap.");
+                            // Fallback: Try searching directly in the database
+                            const normalizedRoadName = normalizeRoadName(roadName);
+                            fetch(`http://localhost:3000/api/speed/${encodeURIComponent(normalizedRoadName)}`)
+                                .then(res => res.json())
+                                .then(speedData => {
+                                    if (speedData.message === "Road not found") {
+                                        alert("Speed data not available for this road.");
+                                        return;
+                                    }
+
+                                    const speedRange = speedData.speed_limit || "30-60";
+                                    const restrictions = speedData.restrictions || "None";
+                                    const color = getSpeedColor(speedRange);
+
+                                    // Clear previous layers
+                                    if (roadMarker) map.removeLayer(roadMarker);
+                                    if (roadLayer) map.removeLayer(roadLayer);
+
+                                    // Since Nominatim failed, use a default marker in Delhi
+                                    const defaultLatLon = [28.6139, 77.2090];
+                                    roadMarker = L.marker(defaultLatLon)
+                                        .addTo(map)
+                                        .bindPopup(`<b>${speedData.road_name}</b><br>Speed Limit: ${speedRange} km/h<br>Restrictions: ${restrictions}`)
+                                        .openPopup();
+                                    map.setView(defaultLatLon, 12);
+
+                                    // Update road info card
+                                    updateRoadInfo(speedData.road_name, speedRange, restrictions);
+                                    
+                                    // Fetch nearby roads
+                                    fetchNearbyRoads(defaultLatLon[0], defaultLatLon[1]);
+                                })
+                                .catch(error => console.error("Error fetching speed limit (fallback):", error));
+                            return;
+                        }
+
+                        const { lat, lon, geojson, display_name } = data[0];
+                        const mainRoadName = display_name.split(",")[0].trim();
+                        const normalizedRoadName = normalizeRoadName(mainRoadName);
+
+                        fetch(`http://localhost:3000/api/speed/${encodeURIComponent(normalizedRoadName)}`)
+                            .then(res => res.json())
+                            .then(speedData => {
+                                if (speedData.message === "Road not found") {
+                                    alert("Speed data not available for this road.");
+                                    return;
+                                }
+
+                                const speedRange = speedData.speed_limit || "30-60";
+                                const restrictions = speedData.restrictions || "None";
+                                const color = getSpeedColor(speedRange);
+
+                                // Clear previous layers
+                                if (roadMarker) map.removeLayer(roadMarker);
+                                if (roadLayer) map.removeLayer(roadLayer);
+
+                                if (geojson) {
+                                    roadLayer = L.geoJSON(geojson, {
+                                        style: { color: color, weight: 5 }
+                                    }).addTo(map)
+                                        .bindPopup(`<b>${speedData.road_name}</b><br>Speed Limit: ${speedRange} km/h<br>Restrictions: ${restrictions}`);
+                                    map.fitBounds(roadLayer.getBounds());
+                                }
+
+                                roadMarker = L.marker([lat, lon])
+                                    .addTo(map)
+                                    .bindPopup(`<b>${speedData.road_name}</b><br>Lat: ${lat}, Lon: ${lon}`)
+                                    .openPopup();
+
+                                // Update road info card
+                                updateRoadInfo(speedData.road_name, speedRange, restrictions);
+                                
+                                // Fetch nearby roads
+                                fetchNearbyRoads(lat, lon);
+                            })
+                            .catch(error => console.error("Error fetching speed limit:", error));
+                    })
+                    .catch(error => console.error("Error fetching road data:", error));
+            };
+
+            // Enter key to search
+            document.getElementById('roadInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchRoad();
+                }
+            });
+
+            // Display recent searches on page load
+            displayRecentSearches();
+        });
+    </script>
+</body>
+</html>

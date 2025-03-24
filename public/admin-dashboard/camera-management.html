@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TrafficIQ</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>TrafficIQ</h1>
+                <span class="admin-badge">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="admin-dashboard.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="system-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <span>System Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="user-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span>Parking Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="camera-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                            <span>Bus Scheduling</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="signal-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                            <span>Penalty System</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="penalty-management.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                            <span>School Zone speed</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="real-time-alerts.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                            <span>Real-Time Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>
+                            <span>Reports & Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="user-profile">
+                    <div class="avatar admin">AD</div>
+                    <div class="user-info">
+                        <h4>Admin User</h4>
+                        <p>System Administrator</p>
+                    </div>
+                </a>
+                <a href="../login.html" class="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" x2="20" y1="12" y2="12"></line>
+                        <line x1="4" x2="20" y1="6" y2="6"></line>
+                        <line x1="4" x2="20" y1="18" y2="18"></line>
+                    </svg>
+                </div>
+                <h2>Vehicle Updation</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.3-4.3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="notification-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+                        </svg>
+                        <span class="badge">5</span>
+                    </button>
+                </div>
+            </header>
+            <div class="dashboard-content">
+                <!-- Include Tailwind CSS and Font Awesome (if not already included in the parent page) -->
+                <script src="https://cdn.tailwindcss.com"></script>
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+            
+                <!-- Existing Custom Styles -->
+                <style>
+                    /* Custom styles for the Updated and Deleted boxes */
+                    .stat-updated {
+                        background-color: #e6f4ea; /* Light green background */
+                    }
+                    .stat-deleted {
+                        background-color: #e6f0ff; /* Light blue background */
+                    }
+                    .highlight {
+                        background-color: #f8f9fa; /* Light gray for alternate rows */
+                    }
+                    /* Adjust padding and background to match admin-dashboard.html */
+                    .dashboard-content {
+                        padding: 1.5rem; /* Match the padding style of main-content */
+                    }
+                </style>
+            
+                <!-- Additional Custom Styles (Appended) -->
+                <style>
+                    /* Enhanced Table Styles */
+                    .enhanced-table {
+                        border-collapse: separate;
+                        border-spacing: 0;
+                        background-color: #fff;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                    }
+                    .enhanced-table th, .enhanced-table td {
+                        padding: 12px 16px;
+                        text-align: left;
+                        border-bottom: 1px solid #e5e7eb;
+                    }
+                    .enhanced-table th {
+                        background-color: #0066cc;
+                        color: #fff;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        font-size: 14px;
+                    }
+                    .enhanced-table tr {
+                        transition: background-color 0.3s ease;
+                    }
+                    .enhanced-table tr:hover {
+                        background-color: #f1f5f9;
+                    }
+                    .enhanced-table td {
+                        font-size: 14px;
+                        color: #333;
+                    }
+                    /* Chart Section */
+                    .chart-section {
+                        margin-top: 2rem;
+                        padding: 1.5rem;
+                        background-color: #fff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                    }
+                    /* Footer Styles (Copied from User Dashboard) */
+                    .admin-footer {
+                        background-color: #fff;
+                        padding: 40px 20px;
+                        border-top: 1px solid #ddd;
+                        margin-top: 2rem;
+                    }
+                    .admin-footer-top {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        max-width: 1200px;
+                        margin: 0 auto 20px;
+                    }
+                    .admin-footer-logo {
+                        color: #0066cc;
+                        font-size: 24px;
+                        font-weight: bold;
+                    }
+                    .admin-footer-links {
+                        display: flex;
+                        justify-content: space-between;
+                        max-width: 1200px;
+                        margin: 0 auto;
+                    }
+                    .admin-footer-links div {
+                        flex: 1;
+                    }
+                    .admin-footer-links h4 {
+                        font-size: 16px;
+                        margin-bottom: 10px;
+                    }
+                    .admin-footer-links a {
+                        display: block;
+                        color: #666;
+                        text-decoration: none;
+                        margin-bottom: 5px;
+                    }
+                    .admin-footer-links a:hover {
+                        color: #0066cc;
+                    }
+                    .admin-footer-bottom {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        max-width: 1200px;
+                        margin: 20px auto 0;
+                        font-size: 14px;
+                        color: #666;
+                    }
+                    .admin-social-icons a {
+                        margin-left: 10px;
+                        color: #666;
+                        text-decoration: none;
+                    }
+                    .admin-social-icons a:hover {
+                        color: #0066cc;
+                    }
+                    .admin-footer select {
+                        padding: 5px;
+                        border: 1px solid #ddd;
+                        border-radius: 5px;
+                    }
+                </style>
+
+                <!-- Main Content -->
+                <div class="mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="p-4 bg-white rounded shadow">
+                            <div class="flex items-center">
+                                <i class="fas fa-bus-alt text-blue-500 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600">Total Buses</p>
+                                    <p class="text-2xl font-semibold" id="totalBuses">0</p>
+                                    <p class="text-xs text-green-500">+2 from yesterday</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white rounded shadow">
+                            <div class="flex items-center">
+                                <i class="fas fa-user text-green-500 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600">Active Users</p>
+                                    <p class="text-2xl font-semibold">24</p>
+                                    <p class="text-xs text-green-500">+3 from yesterday</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white rounded shadow stat-updated">
+                            <div class="flex items-center">
+                                <i class="fas fa-sync-alt text-green-500 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600">Updated</p>
+                                    <p class="text-2xl font-semibold" id="updateCount">0%</p>
+                                    <p class="text-xs text-green-500" id="updateChange">0 updates</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white rounded shadow stat-deleted">
+                            <div class="flex items-center">
+                                <i class="fas fa-times-circle text-blue-500 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-600">Canceled</p>
+                                    <p class="text-2xl font-semibold" id="cancelCount">0%</p>
+                                    <p class="text-xs text-blue-500" id="cancelChange">0 cancellations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bus Schedules Table (Moved Above Chart) -->
+                    <div class="bg-white rounded shadow p-4 mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold">Bus Schedules</h2>
+                            <button class="px-4 py-2 bg-black text-white rounded" onclick="redirectToUpdate()">
+                                Update
+                            </button>
+                        </div>
+                        <table class="w-full text-left enhanced-table">
+                            <thead>
+                                <tr>
+                                    <th class="py-2">Bus Number</th>
+                                    <th class="py-2">Pickup Location</th>
+                                    <th class="py-2">Drop Location</th>
+                                    <th class="py-2">Pickup Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scheduleBody">
+                                <tr>
+                                    <td class="py-2" colspan="4">Loading schedules...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Chart Section (Moved Below Table) -->
+                    <div class="chart-section">
+                        <h2 class="text-lg font-semibold mb-4">Update and Cancel Trends</h2>
+                        <canvas id="actionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <footer class="admin-footer">
+                    <div class="admin-footer-top">
+                        <div class="admin-footer-logo">TrafficIQ</div>
+                    </div>
+                    <div class="admin-footer-links">
+                        <div>
+                            <h4>Product</h4>
+                            <a href="#">Pricing</a>
+                            <a href="#">Features</a>
+                            <a href="#">Updates</a>
+                        </div>
+                        <div>
+                            <h4>Company</h4>
+                            <a href="#">About us</a>
+                            <a href="#">Contact us</a>
+                            <a href="#">Careers</a>
+                        </div>
+                        <div>
+                            <h4>Plans & Pricing</h4>
+                            <a href="#">Startup</a>
+                            <a href="#">Organization</a>
+                        </div>
+                    </div>
+                    <div class="admin-footer-bottom">
+                        <div>
+                            <select>
+                                <option>English</option>
+                            </select>
+                        </div>
+                        <div>© 2024 BRAND, INC. • PRIVACY • TERMS • Sitemap</div>
+                        <div class="admin-social-icons">
+                            <a href="#">Twitter</a>
+                            <a href="#">Facebook</a>
+                            <a href="#">Instagram</a>
+                            <a href="#">LinkedIn</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Initialize counts from localStorage or set to 0
+        let updateCount = parseInt(localStorage.getItem('updateCount')) || 0;
+        let cancelCount = parseInt(localStorage.getItem('cancelCount')) || 0;
+        let totalActions = parseInt(localStorage.getItem('totalActions')) || 0;
+
+        // Data for the chart (time-based)
+        let actionData = JSON.parse(localStorage.getItem('actionData')) || {
+            labels: [],
+            updates: [],
+            cancels: []
+        };
+
+        let actionChart;
+
+        // Function to initialize the line chart
+        function initActionChart() {
+            const ctx = document.getElementById('actionChart').getContext('2d');
+            actionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: actionData.labels,
+                    datasets: [
+                        {
+                            label: 'Updates',
+                            data: actionData.updates,
+                            borderColor: '#2a9d8f',
+                            backgroundColor: 'rgba(42, 157, 143, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Cancels',
+                            data: actionData.cancels,
+                            borderColor: '#e63946',
+                            backgroundColor: 'rgba(230, 57, 70, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Count'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to update the chart with new data
+        function updateActionChart(actionType) {
+            const now = new Date();
+            const timeLabel = now.toTimeString().split(' ')[0].slice(0, 5); // e.g., "14:30"
+
+            // Check if the time label already exists
+            const index = actionData.labels.indexOf(timeLabel);
+            if (index === -1) {
+                // New time slot
+                actionData.labels.push(timeLabel);
+                actionData.updates.push(actionType === 'update' ? 1 : 0);
+                actionData.cancels.push(actionType === 'cancel' ? 1 : 0);
+            } else {
+                // Update existing time slot
+                if (actionType === 'update') {
+                    actionData.updates[index]++;
+                } else {
+                    actionData.cancels[index]++;
+                }
+            }
+
+            // Keep only the last 8 time slots to prevent the chart from growing too large
+            if (actionData.labels.length > 8) {
+                actionData.labels.shift();
+                actionData.updates.shift();
+                actionData.cancels.shift();
+            }
+
+            // Save to localStorage
+            localStorage.setItem('actionData', JSON.stringify(actionData));
+
+            // Update chart
+            actionChart.data.labels = actionData.labels;
+            actionChart.data.datasets[0].data = actionData.updates;
+            actionChart.data.datasets[1].data = actionData.cancels;
+            actionChart.update();
+        }
+
+        // Function to update the UI with percentages
+        function updateStats() {
+            totalActions = updateCount + cancelCount;
+            localStorage.setItem('totalActions', totalActions);
+
+            const updatePercentage = totalActions > 0 ? Math.round((updateCount / totalActions) * 100) : 0;
+            const cancelPercentage = totalActions > 0 ? Math.round((cancelCount / totalActions) * 100) : 0;
+
+            document.getElementById('updateCount').textContent = `${updatePercentage}%`;
+            document.getElementById('updateChange').textContent = `${updateCount} updates`;
+            document.getElementById('cancelCount').textContent = `${cancelPercentage}%`;
+            document.getElementById('cancelChange').textContent = `${cancelCount} cancellations`;
+        }
+
+        // Simulate update and cancel actions
+        function simulateUpdate() {
+            updateCount++;
+            localStorage.setItem('updateCount', updateCount);
+            updateStats();
+            updateActionChart('update');
+        }
+
+        function simulateCancel() {
+            cancelCount++;
+            localStorage.setItem('cancelCount', cancelCount);
+            updateStats();
+            updateActionChart('cancel');
+        }
+
+        // Fetch bus schedules from MongoDB
+        async function fetchSchedules() {
+            try {
+                const response = await fetch("http://localhost:3000/api/bus");
+                const schedules = await response.json();
+
+                const scheduleBody = document.getElementById("scheduleBody");
+                scheduleBody.innerHTML = ""; // Clear previous data
+
+                if (schedules.length === 0) {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td class="py-2" colspan="4">No bus schedules found</td>`;
+                    scheduleBody.appendChild(row);
+                } else {
+                    schedules.forEach((bus, index) => {
+                        const row = document.createElement("tr");
+                        if (index % 2 !== 0) row.classList.add("highlight");
+
+                        row.innerHTML = `
+                            <td class="py-2">${bus.vehicleNo}</td>
+                            <td class="py-2">${bus.pickup}</td>
+                            <td class="py-2">${bus.drop}</td>
+                            <td class="py-2">${bus.time}</td>
+                        `;
+
+                        scheduleBody.appendChild(row);
+                    });
+                }
+
+                // Update total buses count
+                document.getElementById("totalBuses").textContent = schedules.length;
+            } catch (error) {
+                console.error("Error fetching schedules:", error);
+                const scheduleBody = document.getElementById("scheduleBody");
+                scheduleBody.innerHTML = `<tr><td class="py-2" colspan="4">Error loading schedules</td></tr>`;
+            }
+        }
+
+        // Redirect to update-schedule.html
+        function redirectToUpdate() {
+            window.location.href = "update-schedule.html";
+            // Simulate an update action for demo purposes
+            simulateUpdate();
+        }
+
+        // Load schedules, stats, and chart on page load
+        window.onload = function() {
+            fetchSchedules();
+            updateStats();
+            initActionChart();
+        };
+    </script>
+</body>
+</html>

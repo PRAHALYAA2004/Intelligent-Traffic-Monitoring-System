@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 <style>
     :root {
@@ -49,96 +51,7 @@
     }
 
     /* TrafficIQ User Dashboard Sidebar Styles */
-    .sidebar {
-        width: var(--sidebar-width);
-        background-color: white;
-        border-right: 1px solid var(--sidebar-border);
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        z-index: 100;
-        transition: transform 0.3s ease;
-        overflow-y: auto;
-    }
-
-    .sidebar-header {
-        padding: 20px;
-        border-bottom: 1px solid var(--sidebar-border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .sidebar-header h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary-color);
-        margin: 0;
-    }
-
-    .sidebar-nav {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px 0;
-    }
-
-    .sidebar-nav ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sidebar-nav li {
-        margin-bottom: 5px;
-        width: 100%;
-    }
-
-    .sidebar-nav a {
-        display: flex;
-        align-items: center;
-        padding: 12px 20px;
-        color: var(--text-color);
-        text-decoration: none;
-        transition: all 0.2s ease;
-        border-radius: 6px;
-        margin: 0 10px;
-        font-weight: 500;
-        width: calc(100% - 20px);
-    }
-
-    .sidebar-nav a:hover {
-        background-color: var(--sidebar-hover);
-    }
-
-    .sidebar-nav li.active a {
-        background-color: var(--sidebar-active);
-        color: var(--primary-color);
-        font-weight: 600;
-    }
-
-    .sidebar-nav .icon {
-        width: 20px;
-        height: 20px;
-        margin-right: 12px;
-        color: currentColor;
-        flex-shrink: 0;
-    }
-
-    .sidebar-nav span {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .sidebar-footer {
-        padding: 20px;
-        border-top: 1px solid var(--sidebar-border);
-    }
+    
 
     .user-profile {
         display: flex;
@@ -556,16 +469,27 @@
                     <li>
                         <a href="speed-violation.html">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m8 22 4-10 4 10"></path></svg>
+ feature/speed-violation
+                            <span>Road Speed Limit Finder(Priya)</span>
+
                             <span>Speed Monitoring</span>
+ main
                         </a>
                     </li>
                     <li>
                         <a href="traffic-signal.html">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+ feature/speed-violation
+                            <span>Traffic Signal</span>
+                        </a>
+                    </li>
+                    <li class="active">
+
                             <span>Traffic Signals</span>
                         </a>
                     </li>
                     <li>
+ main
                         <a href="parking-management.html">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path></svg>
                             <span>Parking Management</span>
@@ -580,7 +504,11 @@
                     <li>
                         <a href="predictive-traffic.html">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 12h10"></path><path d="M9 4v16"></path><path d="m3 9 3 3-3 3"></path><path d="M14 8h8"></path><path d="M18 4v16"></path><path d="m22 12-3 3-3-3"></path></svg>
+ feature/speed-violation
+                            <span>Citizen Traffic Watch(Priya)</span>
+
                             <span>Predictive Planning</span>
+ main
                         </a>
                     </li>
                     <li>
@@ -602,7 +530,11 @@
                     <div class="avatar">JD</div>
                     <div class="user-info">
                         <h4>John Doe</h4>
+ feature/speed-violation
+                        <p>Traffic Operator</p>
+
                         <p>Commuter</p>
+ main
                     </div>
                 </a>
                 <a href="../login.html" class="logout-btn">
@@ -619,7 +551,7 @@
                 <div class="container">
                     <div class="hero-content">
                         <h1>Save on Parking, Reduce Emissions</h1>
-                        <p>Join our carpool parking incentive program and contribute to a greener future while enjoying exclusive parking benefits and reduced costs.</p>
+                        <p style="color:white">Join our carpool parking incentive program and contribute to a greener future while enjoying exclusive parking benefits and reduced costs.</p>
                         <div class="cta-buttons">
                             <button class="btn primary-btn">Find Carpool Zones</button>
                             <button class="btn secondary-btn">Learn More</button>
