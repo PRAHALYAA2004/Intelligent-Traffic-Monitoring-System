@@ -1,0 +1,47 @@
+/* Signup specific styles */
+
+/* Password hint styling */
+.password-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Terms agreement styling */
+.terms-agreement {
+    display: flex;
+    align-items: flex-start;
+}
+
+.terms-agreement input[type="checkbox"] {
+    margin-top: 3px;
+    margin-right: 8px;
+}
+
+.terms-agreement label {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.terms-agreement a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.terms-agreement a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .terms-agreement {
+        margin-bottom: 15px;
+    }
+}
