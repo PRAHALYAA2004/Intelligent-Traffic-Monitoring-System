@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 <style>
     :root {
@@ -49,96 +51,7 @@
     }
 
     /* TrafficIQ User Dashboard Sidebar Styles */
-    .sidebar {
-        width: var(--sidebar-width);
-        background-color: white;
-        border-right: 1px solid var(--sidebar-border);
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        z-index: 100;
-        transition: transform 0.3s ease;
-        overflow-y: auto;
-    }
-
-    .sidebar-header {
-        padding: 20px;
-        border-bottom: 1px solid var(--sidebar-border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .sidebar-header h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary-color);
-        margin: 0;
-    }
-
-    .sidebar-nav {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px 0;
-    }
-
-    .sidebar-nav ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sidebar-nav li {
-        margin-bottom: 5px;
-        width: 100%;
-    }
-
-    .sidebar-nav a {
-        display: flex;
-        align-items: center;
-        padding: 12px 20px;
-        color: var(--text-color);
-        text-decoration: none;
-        transition: all 0.2s ease;
-        border-radius: 6px;
-        margin: 0 10px;
-        font-weight: 500;
-        width: calc(100% - 20px);
-    }
-
-    .sidebar-nav a:hover {
-        background-color: var(--sidebar-hover);
-    }
-
-    .sidebar-nav li.active a {
-        background-color: var(--sidebar-active);
-        color: var(--primary-color);
-        font-weight: 600;
-    }
-
-    .sidebar-nav .icon {
-        width: 20px;
-        height: 20px;
-        margin-right: 12px;
-        color: currentColor;
-        flex-shrink: 0;
-    }
-
-    .sidebar-nav span {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .sidebar-footer {
-        padding: 20px;
-        border-top: 1px solid var(--sidebar-border);
-    }
+    
 
     .user-profile {
         display: flex;
@@ -619,7 +532,7 @@
                 <div class="container">
                     <div class="hero-content">
                         <h1>Save on Parking, Reduce Emissions</h1>
-                        <p>Join our carpool parking incentive program and contribute to a greener future while enjoying exclusive parking benefits and reduced costs.</p>
+                        <p style="color:white">Join our carpool parking incentive program and contribute to a greener future while enjoying exclusive parking benefits and reduced costs.</p>
                         <div class="cta-buttons">
                             <button class="btn primary-btn">Find Carpool Zones</button>
                             <button class="btn secondary-btn">Learn More</button>
