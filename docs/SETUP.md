@@ -1,4 +1,4 @@
-# SETUP.md
+# SETUP
 
 ## Setup Guide
 ### Prerequisites
