@@ -1,30 +1,52 @@
 pipeline {
     agent any
 
+    environment {
+        NODEJS_HOME = tool 'nodejs'  // Ensure this matches the name in Global Tool Configuration
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-username/your-repo.git'
+                git 'https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System' // Replace with your repo
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Install Dependencies') {
             steps {
                 script {
-                    def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarQube Server') {
-                        bat "${scannerHome}\\bin\\sonar-scanner"
+                    withEnv(["PATH+NODE=$NODEJS_HOME/bin"]) {
+                        sh 'npm install' // Install project dependencies
                     }
                 }
             }
         }
 
-        stage('Quality Gate') {
+        stage('Run Jest Tests') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                script {
+                    withEnv(["PATH+NODE=$NODEJS_HOME/bin"]) {
+                        sh 'npm test -- --ci --json --outputFile=jest-results.json'  // Run Jest tests and output results
+                    }
                 }
             }
+        }
+
+        stage('Publish Test Results') {
+            steps {
+                script {
+                    archiveArtifacts artifacts: 'jest-results.json', onlyIfSuccessful: false
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Jest testing completed."
+        }
+        failure {
+            echo "Jest tests failed! Check logs for errors."
         }
     }
 }
