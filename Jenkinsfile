@@ -1,52 +1,53 @@
 pipeline {
     agent any
 
-    environment {
-        NODEJS_HOME = tool 'nodejs'  // Ensure this matches the name in Global Tool Configuration
+    tools {
+        nodejs 'nodejs'  // Ensure Jenkins uses the correct Node.js installation
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System' // Replace with your repo
+                git branch: 'main', url: 'https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                script {
-                    withEnv(["PATH+NODE=$NODEJS_HOME/bin"]) {
-                        sh 'npm install' // Install project dependencies
-                    }
-                }
+                sh 'npm install'  // Install all project dependencies
             }
         }
 
         stage('Run Jest Tests') {
             steps {
                 script {
-                    withEnv(["PATH+NODE=$NODEJS_HOME/bin"]) {
-                        sh 'npm test -- --ci --json --outputFile=jest-results.json'  // Run Jest tests and output results
+                    try {
+                        sh 'npm test'  // Run Jest tests
+                    } catch (Exception e) {
+                        echo 'Jest tests failed! Check logs for errors.'
+                        error('Tests failed!')
                     }
                 }
             }
         }
 
-        stage('Publish Test Results') {
+        stage('SonarQube Analysis') {
             steps {
                 script {
-                    archiveArtifacts artifacts: 'jest-results.json', onlyIfSuccessful: false
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube Server') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
                 }
             }
         }
-    }
 
-    post {
-        always {
-            echo "Jest testing completed."
-        }
-        failure {
-            echo "Jest tests failed! Check logs for errors."
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
         }
     }
 }
