@@ -1,0 +1,349 @@
+/* Traffic Simulation Styles */
+.simulation-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.border {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Simulation Overlay */
+.simulation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Signal Timers */
+.signal-timers {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.timer {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  display: none;
+}
+
+#timer0 {
+  top: 230px;
+  left: 480px;
+}
+
+#timer1 {
+  top: 230px;
+  left: 600px;
+}
+
+#timer2 {
+  top: 370px;
+  left: 600px;
+}
+
+#timer3 {
+  top: 370px;
+  left: 480px;
+}
+
+/* Time Controls */
+.time-controls {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.time-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.time-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 20px;
+}
+
+.current-time {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.current-date {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Signal Controls */
+.signal-controls {
+  width: 100%;
+}
+
+.signal-control-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.signal-control-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.signal-control-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.signal-control-header {
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.signal-control-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.signal-control-content {
+  padding: 15px;
+}
+
+.signal-input-group {
+  margin-bottom: 15px;
+}
+
+.signal-input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.signal-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+}
+
+.signal-input:focus {
+  border-color: #0066cc;
+  outline: none;
+}
+
+.signal-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+  background-color: #222;
+  border-radius: 5px;
+  position: relative;
+}
+
+.signal-light {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-bottom: 5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.signal-light.red {
+  background-color: #550000;
+}
+
+.signal-light.red.active {
+  background-color: #ff0000;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+}
+
+.signal-light.yellow {
+  background-color: #555500;
+}
+
+.signal-light.yellow.active {
+  background-color: #ffff00;
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+}
+
+.signal-light.green {
+  background-color: #005500;
+}
+
+.signal-light.green.active {
+  background-color: #00ff00;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+}
+
+.countdown {
+  position: absolute;
+  bottom: -25px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.pedestrian-controls {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Button Styles */
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.primary-btn {
+  background-color: #0066cc;
+  color: white;
+}
+
+.primary-btn:hover {
+  background-color: #0052a3;
+}
+
+.primary-btn:disabled {
+  background-color: #99c2ff;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background-color: transparent;
+  color: #0066cc;
+  border: 1px solid #0066cc;
+}
+
+.secondary-btn:hover {
+  background-color: #e6f0ff;
+}
+
+.secondary-btn.active {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.danger-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.danger-btn:hover {
+  background-color: #c82333;
+}
+
+/* Day/Night Cycle */
+.day-mode {
+  background-color: #f5f5f5;
+}
+
+.evening-mode {
+  background-color: #faf3e0;
+}
+
+.night-mode {
+  background-color: #1a1a2e;
+  color: #f5f5f5;
+}
+
+.night-mode .signal-light.red.active {
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+}
+
+.night-mode .signal-light.yellow.active {
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.9);
+}
+
+.night-mode .signal-light.green.active {
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.9);
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .simulation-container canvas {
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (max-width: 992px) {
+  .card-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .time-controls {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .signal-control-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .pedestrian-controls {
+    flex-direction: column;
+  }
+  
+  .pedestrian-controls .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .signal-control-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .time-display {
+    display: none;
+  }
+}

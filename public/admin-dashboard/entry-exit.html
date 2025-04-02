@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Management System</title>
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 280px;
+            background: white;
+            height: 100vh;
+            border-right: 1px solid #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin: 0.5rem 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #6B7280;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav .active a {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .sidebar-nav .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            text-decoration: none;
+            color: #1F2937;
+        }
+
+        .avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: #2563EB;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: 500;
+        }
+
+        .user-info h4 {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .user-info p {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.75rem;
+            background: #F3F4F6;
+            color: #374151;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #E5E7EB;
+        }
+
+        .logout-btn .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+
+        /* Main content styles */
+        .dashboard-container {
+            flex: 1;
+            margin-left: 280px;
+            width: calc(100% - 280px);
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo .icon {
+            width: 2rem;
+            height: 2rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-btn:hover {
+            background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 100%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        /* Stats */
+        .stats-container {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            transition: box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon-container {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .blue {
+            background-color: #EFF6FF;
+        }
+
+        .blue .stat-icon {
+            color: #2563EB;
+        }
+
+        .green {
+            background-color: #ECFDF5;
+        }
+
+        .green .stat-icon {
+            color: #059669;
+        }
+
+        .yellow {
+            background-color: #FFFBEB;
+        }
+
+        .yellow .stat-icon {
+            color: #D97706;
+        }
+
+        .purple {
+            background-color: #F5F3FF;
+        }
+
+        .purple .stat-icon {
+            color: #7C3AED;
+        }
+
+        .stat-info {
+            margin-left: 1rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1F2937;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.entry {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .notification.exit {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Table */
+        .table-container {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .search-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem 0.75rem 0 0;
+            border: 1px solid #E5E7EB;
+            border-bottom: none;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #F9FAFB;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .search-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .search-box input {
+            margin-left: 0.5rem;
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            color: #1F2937;
+        }
+
+        .search-box input:focus {
+            outline: none;
+        }
+
+        .table-wrapper {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 0 0 0.75rem 0.75rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #F9FAFB;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        th:hover {
+            background: #F3F4F6;
+        }
+
+        .sort-icon {
+            width: 1rem;
+            height: 1rem;
+            vertical-align: middle;
+            margin-left: 0.25rem;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            color: #374151;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        tr:hover {
+            background: #EFF6FF;
+        }
+
+        .plate-number {
+            color: #2563EB;
+            font-weight: 500;
+        }
+
+        .still-parked {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        /* Pagination */
+        .pagination {
+            background: white;
+            padding: 1rem 1.5rem;
+            border: 1px solid #E5E7EB;
+            border-top: none;
+            border-radius: 0 0 0.75rem 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .page-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .page-button.active {
+            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-button:not(.active) {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .page-button:not(.active):hover {
+            background: #E5E7EB;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .dashboard-container {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>TrafficIQ</h1>
+            <span class="admin-badge">Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active">
+                    <a href="admin-dashboard.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="traffic-signal.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span>Signal Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="traffic-risk.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>Traffic Risks</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="entry-exit.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>Entry - Exit</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user-management.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <span>Parking Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="camera-management.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                        <span>Bus Scheduling</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="signal-management.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="10" height="20" x="7" y="2" rx="2"></rect><circle cx="12" cy="7" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg>
+                        <span>Penalty System</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="penalty-management.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                        <span>School Zone speed</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="real-time-alerts.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                        <span>Real-Time Alerts</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="reports.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" class="user-profile">
+                <div class="avatar admin">AD</div>
+                <div class="user-info">
+                    <h4>Admin User</h4>
+                    <p>System Administrator</p>
+                </div>
+            </a>
+            <a href="../login.html" class="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <!-- Car icon for the logo -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A2 2 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+                            <circle cx="7" cy="17" r="2"></circle>
+                            <path d="M9 17h6"></path>
+                            <circle cx="17" cy="17" r="2"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1>Parking Management System</h1>
+                        <p>Real-time monitoring & analytics</p>
+                    </div>
+                </div>
+                <button id="exportBtn" class="export-btn">
+                    <!-- Download icon for Export Data button -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sm">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export Data
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon-container blue">
+                        <!-- Car-front icon for Total Vehicles -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                            <path d="M6 17h12"></path>
+                            <path d="M6 17v-5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"></path>
+                            <circle cx="8" cy="17" r="2"></circle>
+                            <circle cx="16" cy="17" r="2"></circle>
+                            <path d="M10 10V5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v5"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Vehicles</p>
+                        <p id="totalVehicles" class="stat-value">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-container green">
+                        <!-- Car icon for Currently Parked -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A2 2 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+                            <circle cx="7" cy="17" r="2"></circle>
+                            <path d="M9 17h6"></path>
+                            <circle cx="17" cy="17" r="2"></circle>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Currently Parked</p>
+                        <p id="currentlyParked" class="stat-value">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-container yellow">
+                        <!-- Dollar-sign icon for Total Revenue -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                            <line x1="12" y1="2" x2="12" y2="22"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Revenue</p>
+                        <p id="totalRevenue" class="stat-value">$0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-container purple">
+                        <!-- Clock icon for Occupancy Rate -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Occupancy Rate</p>
+                        <p id="occupancyRate" class="stat-value">0%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div id="notification" class="notification hidden"></div>
+
+        <!-- Search and Table -->
+        <div class="table-container">
+            <div class="search-container">
+                <div class="search-box">
+                    <!-- Search icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Search by plate number or vehicle type..."
+                    >
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="id">ID 
+                                <!-- Arrow-up-down icon for sorting -->
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                    <path d="m7 15 5 5 5-5"></path>
+                                    <path d="m7 9 5-5 5 5"></path>
+                                </svg>
+                            </th>
+                            <th data-sort="plateNumber">Plate Number 
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                    <path d="m7 15 5 5 5-5"></path>
+                                    <path d="m7 9 5-5 5 5"></path>
+                                </svg>
+                            </th>
+                            <th data-sort="type">Type 
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                    <path d="m7 15 5 5 5-5"></path>
+                                    <path d="m7 9 5-5 5 5"></path>
+                                </svg>
+                            </th>
+                            <th data-sort="entryTime">Entry Time 
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                    <path d="m7 15 5 5 5-5"></path>
+                                    <path d="m7 9 5-5 5 5"></path>
+                                </svg>
+                            </th>
+                            <th data-sort="exitTime">Exit Time 
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                    <path d="m7 15 5 5 5-5"></path>
+                                    <path d="m7 9 5-5 5 5"></path>
+                                </svg>
+                            </th>
+                            <th data-sort="fee">Fee 
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                    <path d="m7 15 5 5 5-5"></path>
+                                    <path d="m7 9 5-5 5 5"></path>
+                                </svg>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicleTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info">
+                    <p id="paginationText">Showing 0 to 0 of 0 results</p>
+                </div>
+                <div id="paginationButtons" class="pagination-buttons"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mock data generator
+        const generateMockData = (count) => {
+            const vehicles = [];
+            const plates = ['ABC123', 'XYZ789', 'DEF456', 'GHI789', 'JKL012'];
+            const types = ['SUV', 'Sedan', 'Truck', 'Van'];
+
+            for (let i = 0; i < count; i++) {
+                const entryTime = new Date(Date.now() - Math.random() * 86400000);
+                const exitTime = Math.random() > 0.3 ? new Date(entryTime.getTime() + Math.random() * 43200000) : null;
+                
+                vehicles.push({
+                    id: i + 1,
+                    plateNumber: plates[Math.floor(Math.random() * plates.length)],
+                    type: types[Math.floor(Math.random() * types.length)],
+                    entryTime,
+                    exitTime,
+                    fee: Math.floor(Math.random() * 50) + 10
+                });
+            }
+
+            return vehicles;
+        };
+
+        // State management
+        let state = {
+            vehicles: generateMockData(50),
+            searchTerm: '',
+            sortField: 'entryTime',
+            sortDirection: 'desc',
+            currentPage: 1,
+            itemsPerPage: 10
+        };
+
+        // DOM Elements
+        const elements = {
+            totalVehicles: document.getElementById('totalVehicles'),
+            currentlyParked: document.getElementById('currentlyParked'),
+            totalRevenue: document.getElementById('totalRevenue'),
+            occupancyRate: document.getElementById('occupancyRate'),
+            searchInput: document.getElementById('searchInput'),
+            tableBody: document.getElementById('vehicleTableBody'),
+            paginationText: document.getElementById('paginationText'),
+            paginationButtons: document.getElementById('paginationButtons'),
+            notification: document.getElementById('notification'),
+            exportBtn: document.getElementById('exportBtn')
+        };
+
+        // Update stats
+        const updateStats = () => {
+            const stats = {
+                totalVehicles: state.vehicles.length,
+                currentlyParked: state.vehicles.filter(v => !v.exitTime).length,
+                totalRevenue: state.vehicles.reduce((sum, v) => sum + (v.exitTime ? v.fee : 0), 0),
+                occupancyRate: Math.round((state.vehicles.filter(v => !v.exitTime).length / 100) * 100)
+            };
+
+            elements.totalVehicles.textContent = stats.totalVehicles;
+            elements.currentlyParked.textContent = stats.currentlyParked;
+            elements.totalRevenue.textContent = `$${stats.totalRevenue}`;
+            elements.occupancyRate.textContent = `${stats.occupancyRate}%`;
+        };
+
+        // Filter and sort vehicles
+        const getFilteredVehicles = () => {
+            return state.vehicles
+                .filter(vehicle => 
+                    vehicle.plateNumber.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
+                    vehicle.type.toLowerCase().includes(state.searchTerm.toLowerCase())
+                )
+                .sort((a, b) => {
+                    const aValue = a[state.sortField];
+                    const bValue = b[state.sortField];
+                    return state.sortDirection === 'asc' 
+                        ? (aValue > bValue ? 1 : -1)
+                        : (aValue < bValue ? 1 : -1);
+                });
+        };
+
+        // Update table
+        const updateTable = () => {
+            const filteredVehicles = getFilteredVehicles();
+            const totalPages = Math.ceil(filteredVehicles.length / state.itemsPerPage);
+            const start = (state.currentPage - 1) * state.itemsPerPage;
+            const end = start + state.itemsPerPage;
+            const paginatedVehicles = filteredVehicles.slice(start, end);
+
+            // Update table body
+            elements.tableBody.innerHTML = paginatedVehicles.map(vehicle => `
+                <tr>
+                    <td>${vehicle.id}</td>
+                    <td class="plate-number">${vehicle.plateNumber}</td>
+                    <td>${vehicle.type}</td>
+                    <td>${vehicle.entryTime.toLocaleString()}</td>
+                    <td>${vehicle.exitTime 
+                        ? vehicle.exitTime.toLocaleString() 
+                        : '<span class="still-parked">Still Parked</span>'}</td>
+                    <td>$${vehicle.fee}</td>
+                </tr>
+            `).join('');
+
+            // Update pagination text
+            elements.paginationText.textContent = `Showing ${start + 1} to ${Math.min(end, filteredVehicles.length)} of ${filteredVehicles.length} results`;
+
+            // Update pagination buttons
+            elements.paginationButtons.innerHTML = Array.from({ length: totalPages }, (_, i) => i + 1)
+                .map(page => `
+                    <button class="page-button ${page === state.currentPage ? 'active' : ''}"
+                            onclick="changePage(${page})">
+                        ${page}
+                    </button>
+                `).join('');
+        };
+
+        // Change page
+        window.changePage = (page) => {
+            state.currentPage = page;
+            updateTable();
+        };
+
+        // Show notification
+        const showNotification = (type, plateNumber) => {
+            elements.notification.textContent = `Vehicle ${plateNumber} ${type === 'entry' ? 'entered' : 'exited'}`;
+            elements.notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                elements.notification.className = 'notification hidden';
+            }, 3000);
+        };
+
+        // Export to CSV
+        elements.exportBtn.addEventListener('click', () => {
+            const headers = ['ID', 'Plate Number', 'Type', 'Entry Time', 'Exit Time', 'Fee'];
+            const csvData = [
+                headers,
+                ...getFilteredVehicles().map(v => [
+                    v.id,
+                    v.plateNumber,
+                    v.type,
+                    v.entryTime.toLocaleString(),
+                    v.exitTime ? v.exitTime.toLocaleString() : 'Still Parked',
+                    `$${v.fee}`
+                ])
+            ];
+            
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'parking_data.csv';
+            a.click();
+        });
+
+        // Search handler
+        elements.searchInput.addEventListener('input', (e) => {
+            state.searchTerm = e.target.value;
+            state.currentPage = 1;
+            updateTable();
+        });
+
+        // Sort handler
+        document.querySelectorAll('th').forEach(th => {
+            th.addEventListener('click', () => {
+                const field = th.getAttribute('data-sort');
+                if (state.sortField === field) {
+                    state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    state.sortField = field;
+                    state.sortDirection = 'asc';
+                }
+                updateTable();
+            });
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const randomAction = Math.random() > 0.5;
+            const newVehicles = [...state.vehicles];
+            
+            if (randomAction) {
+                // New vehicle entry
+                const newVehicle = {
+                    id: state.vehicles.length + 1,
+                    plateNumber: `NEW${Math.floor(Math.random() * 1000)}`,
+                    type: ['SUV', 'Sedan', 'Truck', 'Van'][Math.floor(Math.random() * 4)],
+                    entryTime: new Date(),
+                    exitTime: null,
+                    fee: 0
+                };
+                newVehicles.unshift(newVehicle);
+                showNotification('entry', newVehicle.plateNumber);
+            } else {
+                // Vehicle exit
+                const parkedVehicles = newVehicles.filter(v => !v.exitTime);
+                if (parkedVehicles.length) {
+                    const randomIndex = Math.floor(Math.random() * parkedVehicles.length);
+                    const exitingVehicle = parkedVehicles[randomIndex];
+                    const vehicleIndex = newVehicles.findIndex(v => v.id === exitingVehicle.id);
+                    newVehicles[vehicleIndex] = {
+                        ...exitingVehicle,
+                        exitTime: new Date(),
+                        fee: Math.floor(Math.random() * 50) + 10
+                    };
+                    showNotification('exit', exitingVehicle.plateNumber);
+                }
+            }
+            
+            state.vehicles = newVehicles;
+            updateStats();
+            updateTable();
+        }, 10000);
+
+        // Initial render
+        updateStats();
+        updateTable();
+    </script>
+</body>
+</html>
