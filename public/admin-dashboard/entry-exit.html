@@ -3,224 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
     <title>Parking Management System</title>
     <style>
-        /* Base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
-            min-height: 100vh;
-            display: flex;
-        }
-
-        /* Sidebar styles */
-        .sidebar {
-            width: 280px;
-            background: white;
-            height: 100vh;
-            border-right: 1px solid #E5E7EB;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
-
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #E5E7EB;
-        }
-
-        .sidebar-header h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            padding: 1rem 0;
-        }
-
-        .sidebar-nav ul {
-            list-style: none;
-        }
-
-        .sidebar-nav li {
-            margin: 0.5rem 0;
-        }
-
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: #6B7280;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav .active a {
-            background: #EFF6FF;
-            color: #2563EB;
-        }
-
-        .sidebar-nav .icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            margin-right: 0.75rem;
-        }
-
-        .sidebar-footer {
-            padding: 1.5rem;
-            border-top: 1px solid #E5E7EB;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            text-decoration: none;
-            color: #1F2937;
-        }
-
-        .avatar {
-            width: 2.5rem;
-            height: 2.5rem;
-            background: #2563EB;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.75rem;
-            font-weight: 500;
-        }
-
-        .user-info h4 {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .user-info p {
-            font-size: 0.875rem;
-            color: #6B7280;
-        }
-
-        .logout-btn {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            padding: 0.75rem;
-            background: #F3F4F6;
-            color: #374151;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .logout-btn:hover {
-            background: #E5E7EB;
-        }
-
-        .logout-btn .icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            margin-right: 0.75rem;
-        }
-
-        /* Main content styles */
-        .dashboard-container {
-            flex: 1;
-            margin-left: 280px;
-            width: calc(100% - 280px);
-        }
-
-        /* Header */
-        .header {
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid #E5E7EB;
-        }
-
-        .header-content {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 1.5rem 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo .icon {
-            width: 2rem;
-            height: 2rem;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            font-size: 0.875rem;
-            color: #6B7280;
-        }
-
-        .export-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .export-btn:hover {
-            background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 100%);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .icon-sm {
-            width: 1rem;
-            height: 1rem;
-        }
-
-        /* Stats */
+        /* Retain necessary inline styles for specific components */
         .stats-container {
             max-width: 1280px;
             margin: 2rem auto;
@@ -312,15 +99,16 @@
         /* Notification */
         .notification {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            padding: 1rem;
+            top: 2rem; /* Increased to avoid overlap with browser toolbar */
+            right: 2rem; /* Increased to ensure visibility */
+            padding: 1rem 1.5rem; /* Added more padding for better readability */
             border-radius: 0.5rem;
             color: white;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000; /* Ensure it appears above other elements */
             transform: translateY(-100%);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Separated transitions for clarity */
         }
 
         .notification.show {
@@ -487,31 +275,23 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-
-            .dashboard-container {
-                margin-left: 0;
-                width: 100%;
-            }
-
             .stats-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
             }
 
             .pagination {
                 flex-direction: column;
                 gap: 1rem;
                 text-align: center;
+            }
+
+            .notification {
+                top: 3rem; /* Adjusted for smaller screens */
+                right: 1rem;
+                width: 80%; /* Ensure it fits on smaller screens */
+                margin: 0 auto;
+                left: 0;
+                right: 0;
             }
         }
     </style>
@@ -539,13 +319,13 @@
                 </li>
                 <li>
                     <a href="traffic-risk.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l-.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         <span>Traffic Risks</span>
                     </a>
                 </li>
                 <li class="active">
                     <a href="entry-exit.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 1-1.73 1H.18a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 .73 2.73l.38.22a2 2 0 0 1 1 1.73V21.82a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l-.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 1 1.73-1h.18a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-.73-2.73l-.38-.22a2 2 0 0 1-1-1.73V4.18a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         <span>Entry - Exit</span>
                     </a>
                 </li>
@@ -604,174 +384,167 @@
 
     <!-- Main Content -->
     <div class="dashboard-container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="header-left">
-                    <div class="logo">
-                        <!-- Car icon for the logo -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A2 2 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
-                            <circle cx="7" cy="17" r="2"></circle>
-                            <path d="M9 17h6"></path>
-                            <circle cx="17" cy="17" r="2"></circle>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1>Parking Management System</h1>
-                        <p>Real-time monitoring & analytics</p>
-                    </div>
-                </div>
-                <button id="exportBtn" class="export-btn">
-                    <!-- Download icon for Export Data button -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sm">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="menu-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" x2="20" y1="12" y2="12"></line>
+                        <line x1="4" x2="20" y1="6" y2="6"></line>
+                        <line x1="4" x2="20" y1="18" y2="18"></line>
                     </svg>
-                    Export Data
-                </button>
-            </div>
-        </header>
-
-        <!-- Stats -->
-        <div class="stats-container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon-container blue">
-                        <!-- Car-front icon for Total Vehicles -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
-                            <path d="M6 17h12"></path>
-                            <path d="M6 17v-5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"></path>
-                            <circle cx="8" cy="17" r="2"></circle>
-                            <circle cx="16" cy="17" r="2"></circle>
-                            <path d="M10 10V5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v5"></path>
+                </div>
+                <h2>Parking Management System</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search by plate number or vehicle type...">
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.3-4.3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <button id="exportBtn" class="notification-btn" style="background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%); color: white;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sm">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" x1="15" x2="12" y2="3"></line>
                         </svg>
-                    </div>
-                    <div class="stat-info">
-                        <p class="stat-label">Total Vehicles</p>
-                        <p id="totalVehicles" class="stat-value">0</p>
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Stats -->
+                <div class="stats-container">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-container blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                                    <path d="M6 17h12"></path>
+                                    <path d="M6 17v-5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"></path>
+                                    <circle cx="8" cy="17" r="2"></circle>
+                                    <circle cx="16" cy="17" r="2"></circle>
+                                    <path d="M10 10V5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v5"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <p class="stat-label">Total Vehicles</p>
+                                <p id="totalVehicles" class="stat-value">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon-container green">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A2 2 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+                                    <circle cx="7" cy="17" r="2"></circle>
+                                    <path d="M9 17h6"></path>
+                                    <circle cx="17" cy="17" r="2"></circle>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <p class="stat-label">Currently Parked</p>
+                                <p id="currentlyParked" class="stat-value">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon-container yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                                    <line x1="12" y1="2" x2="12" y2="22"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <p class="stat-label">Total Revenue</p>
+                                <p id="totalRevenue" class="stat-value">$0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon-container purple">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <p class="stat-label">Occupancy Rate</p>
+                                <p id="occupancyRate" class="stat-value">0%</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon-container green">
-                        <!-- Car icon for Currently Parked -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
-                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A2 2 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
-                            <circle cx="7" cy="17" r="2"></circle>
-                            <path d="M9 17h6"></path>
-                            <circle cx="17" cy="17" r="2"></circle>
-                        </svg>
+
+                <!-- Notification -->
+                <div id="notification" class="notification hidden"></div>
+
+                <!-- Search and Table -->
+                <div class="table-container">
+                    <div class="search-container">
+                        <div class="search-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="searchInputTable" placeholder="Search by plate number or vehicle type...">
+                        </div>
                     </div>
-                    <div class="stat-info">
-                        <p class="stat-label">Currently Parked</p>
-                        <p id="currentlyParked" class="stat-value">0</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th data-sort="id">ID 
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </th>
+                                    <th data-sort="plateNumber">Plate Number 
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </th>
+                                    <th data-sort="type">Type 
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </th>
+                                    <th data-sort="entryTime">Entry Time 
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </th>
+                                    <th data-sort="exitTime">Exit Time 
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </th>
+                                    <th data-sort="fee">Fee 
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="SORT-icon">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehicleTableBody"></tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon-container yellow">
-                        <!-- Dollar-sign icon for Total Revenue -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
-                            <line x1="12" y1="2" x2="12" y2="22"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                    </div>
-                    <div class="stat-info">
-                        <p class="stat-label">Total Revenue</p>
-                        <p id="totalRevenue" class="stat-value">$0</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon-container purple">
-                        <!-- Clock icon for Occupancy Rate -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </div>
-                    <div class="stat-info">
-                        <p class="stat-label">Occupancy Rate</p>
-                        <p id="occupancyRate" class="stat-value">0%</p>
+
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            <p id="paginationText">Showing 0 to 0 of 0 results</p>
+                        </div>
+                        <div id="paginationButtons" class="pagination-buttons"></div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Notification -->
-        <div id="notification" class="notification hidden"></div>
-
-        <!-- Search and Table -->
-        <div class="table-container">
-            <div class="search-container">
-                <div class="search-box">
-                    <!-- Search icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input 
-                        type="text" 
-                        id="searchInput"
-                        placeholder="Search by plate number or vehicle type..."
-                    >
-                </div>
-            </div>
-
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th data-sort="id">ID 
-                                <!-- Arrow-up-down icon for sorting -->
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
-                                    <path d="m7 15 5 5 5-5"></path>
-                                    <path d="m7 9 5-5 5 5"></path>
-                                </svg>
-                            </th>
-                            <th data-sort="plateNumber">Plate Number 
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
-                                    <path d="m7 15 5 5 5-5"></path>
-                                    <path d="m7 9 5-5 5 5"></path>
-                                </svg>
-                            </th>
-                            <th data-sort="type">Type 
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
-                                    <path d="m7 15 5 5 5-5"></path>
-                                    <path d="m7 9 5-5 5 5"></path>
-                                </svg>
-                            </th>
-                            <th data-sort="entryTime">Entry Time 
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
-                                    <path d="m7 15 5 5 5-5"></path>
-                                    <path d="m7 9 5-5 5 5"></path>
-                                </svg>
-                            </th>
-                            <th data-sort="exitTime">Exit Time 
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
-                                    <path d="m7 15 5 5 5-5"></path>
-                                    <path d="m7 9 5-5 5 5"></path>
-                                </svg>
-                            </th>
-                            <th data-sort="fee">Fee 
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon">
-                                    <path d="m7 15 5 5 5-5"></path>
-                                    <path d="m7 9 5-5 5 5"></path>
-                                </svg>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="vehicleTableBody"></tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination">
-                <div class="pagination-info">
-                    <p id="paginationText">Showing 0 to 0 of 0 results</p>
-                </div>
-                <div id="paginationButtons" class="pagination-buttons"></div>
-            </div>
-        </div>
+        </main>
     </div>
 
     <!-- JavaScript -->
@@ -816,6 +589,7 @@
             totalRevenue: document.getElementById('totalRevenue'),
             occupancyRate: document.getElementById('occupancyRate'),
             searchInput: document.getElementById('searchInput'),
+            searchInputTable: document.getElementById('searchInputTable'),
             tableBody: document.getElementById('vehicleTableBody'),
             paginationText: document.getElementById('paginationText'),
             paginationButtons: document.getElementById('paginationButtons'),
@@ -862,7 +636,6 @@
             const end = start + state.itemsPerPage;
             const paginatedVehicles = filteredVehicles.slice(start, end);
 
-            // Update table body
             elements.tableBody.innerHTML = paginatedVehicles.map(vehicle => `
                 <tr>
                     <td>${vehicle.id}</td>
@@ -876,10 +649,8 @@
                 </tr>
             `).join('');
 
-            // Update pagination text
             elements.paginationText.textContent = `Showing ${start + 1} to ${Math.min(end, filteredVehicles.length)} of ${filteredVehicles.length} results`;
 
-            // Update pagination buttons
             elements.paginationButtons.innerHTML = Array.from({ length: totalPages }, (_, i) => i + 1)
                 .map(page => `
                     <button class="page-button ${page === state.currentPage ? 'active' : ''}"
@@ -897,12 +668,24 @@
 
         // Show notification
         const showNotification = (type, plateNumber) => {
-            elements.notification.textContent = `Vehicle ${plateNumber} ${type === 'entry' ? 'entered' : 'exited'}`;
-            elements.notification.className = `notification ${type} show`;
+            // Remove existing type classes to avoid conflicts
+            elements.notification.classList.remove('entry', 'exit');
             
+            // Set the content and type
+            elements.notification.textContent = `Vehicle ${plateNumber} ${type === 'entry' ? 'entered' : 'exited'}`;
+            elements.notification.classList.add(type);
+            
+            // Show the notification
+            elements.notification.classList.remove('hidden');
+            elements.notification.classList.add('show');
+            
+            // Hide after 5 seconds
             setTimeout(() => {
-                elements.notification.className = 'notification hidden';
-            }, 3000);
+                elements.notification.classList.remove('show');
+                setTimeout(() => {
+                    elements.notification.classList.add('hidden');
+                }, 300); // Wait for the transition to complete before hiding
+            }, 5000); // Increased duration to 5 seconds
         };
 
         // Export to CSV
@@ -929,11 +712,13 @@
             a.click();
         });
 
-        // Search handler
-        elements.searchInput.addEventListener('input', (e) => {
-            state.searchTerm = e.target.value;
-            state.currentPage = 1;
-            updateTable();
+        // Search handler (for both header and table inputs)
+        [elements.searchInput, elements.searchInputTable].forEach(input => {
+            input.addEventListener('input', (e) => {
+                state.searchTerm = e.target.value;
+                state.currentPage = 1;
+                updateTable();
+            });
         });
 
         // Sort handler
@@ -956,7 +741,6 @@
             const newVehicles = [...state.vehicles];
             
             if (randomAction) {
-                // New vehicle entry
                 const newVehicle = {
                     id: state.vehicles.length + 1,
                     plateNumber: `NEW${Math.floor(Math.random() * 1000)}`,
@@ -968,7 +752,6 @@
                 newVehicles.unshift(newVehicle);
                 showNotification('entry', newVehicle.plateNumber);
             } else {
-                // Vehicle exit
                 const parkedVehicles = newVehicles.filter(v => !v.exitTime);
                 if (parkedVehicles.length) {
                     const randomIndex = Math.floor(Math.random() * parkedVehicles.length);
@@ -991,6 +774,11 @@
         // Initial render
         updateStats();
         updateTable();
+
+        // Mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
     </script>
 </body>
 </html>
