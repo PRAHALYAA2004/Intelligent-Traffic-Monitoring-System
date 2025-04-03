@@ -1,6 +1,7 @@
 {
   "name": "intelligent-traffic-monitoring-system",
   "version": "1.0.0",
+  "type": "module",
   "description": "19CSE314 Software Engineering Project",
   "main": "server.js",
   "directories": {
@@ -47,6 +48,5 @@
   "bugs": {
     "url": "https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System/issues"
   },
-  "homepage": "https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System#readme",
-  "type": "commonjs"
+  "homepage": "https://github.com/PRAHALYAA2004/Intelligent-Traffic-Monitoring-System#readme"
 }

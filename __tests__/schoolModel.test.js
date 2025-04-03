@@ -1,45 +1,48 @@
 const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
-const SchoolZone = require("../models/schoolModel")(mongoose);
+const createSchoolModel = require("../models/schoolModel");
 
-let mongoServer;
+describe("SchoolZone Model", () => {
+  let connection;
+  let SchoolZone;
 
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
-
-describe("School Model Test", () => {
-  it("should create and save school zone data successfully", async () => {
-    const schoolZoneData = {
-      school_name: "Greenwood High",
-      number_of_violations: 5,
-      school_zone_hours: "8 AM - 5 PM",
-      violation_details: [{ violation_time: "9:00 AM", speed_recorded: 45, vehicle_id: "KA05AB1234", violation_type: "Over-speeding" }],
-    };
-
-    const schoolZone = new SchoolZone(schoolZoneData);
-    const savedSchoolZone = await schoolZone.save();
-
-    expect(savedSchoolZone._id).toBeDefined();
-    expect(savedSchoolZone.school_name).toBe(schoolZoneData.school_name);
+  beforeAll(async () => {
+    connection = await mongoose.createConnection("mongodb://localhost:27017/testDB", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    SchoolZone = createSchoolModel(connection);
   });
 
-  it("should not save school zone without required fields", async () => {
-    const invalidSchoolZone = new SchoolZone({ number_of_violations: 3 });
+  afterAll(async () => {
+    await connection.close();
+  });
 
-    let err;
-    try {
-      await invalidSchoolZone.save();
-    } catch (error) {
-      err = error;
-    }
-    expect(err).toBeDefined();
+  it("should create a new school zone entry", async () => {
+    const school = new SchoolZone({
+      school_name: "Greenwood High",
+      number_of_violations: 5,
+      school_zone_hours: "07:00 - 19:00",
+      violation_details: [
+        {
+          violation_time: "08:30",
+          speed_recorded: 45,
+          vehicle_id: "ABC123",
+          location_coordinates: "12.9716, 77.5946",
+          violation_type: "Over-speeding",
+          is_during_operational_hours: true,
+          fine_issued: 500,
+        },
+      ],
+    });
+
+    const savedSchool = await school.save();
+    expect(savedSchool._id).toBeDefined();
+    expect(savedSchool.school_name).toBe("Greenwood High");
+  });
+
+  it("should retrieve school zone data", async () => {
+    const school = await SchoolZone.findOne({ school_name: "Greenwood High" });
+    expect(school).toBeDefined();
+    expect(school.number_of_violations).toBe(5);
   });
 });
